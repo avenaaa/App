@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CliniScope — Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1C9A5B;
+    --green-dark: #14874F;
+    --green-light: #E7F6EE;
+    --orange: #F0891E;
+    --text-dark: #1F2A24;
+    --text-muted: #5C6B63;
+    --white: #FFFFFF;
+    --border: #E1E8E3;
+
+    --c-hospital: #E64545;
+    --c-health-center: #1C9A5B;
+    --c-clinic: #2E7DD6;
+    --c-pharmacy: #9B59D0;
+    --c-dental: #F0891E;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    background: var(--white);
+    color: var(--text-dark);
+  }
+
+  a { text-decoration: none; }
+
+  /* ---------- Header (same as landing page) ---------- */
+  header {
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 60px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 14px; }
+  .logo-img { width: 40px; height: 40px; object-fit: contain; }
+  .logo span { color: var(--white); font-size: 26px; font-weight: 800; letter-spacing: -0.3px; }
+
+  nav { display: flex; align-items: center; gap: 46px; }
+  nav a { color: var(--white); font-size: 17px; font-weight: 500; opacity: 0.85; position: relative; }
+  nav a.active { opacity: 1; font-weight: 700; }
+  nav a.active::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -8px;
+    height: 3px;
+    background: var(--white);
+    border-radius: 3px;
+  }
+
+  .admin-btn {
+    background: var(--white);
+    color: var(--green);
+    font-weight: 700;
+    font-size: 16px;
+    padding: 13px 26px;
+    border-radius: 30px;
+    white-space: nowrap;
+  }
+
+  /* ---------- Page intro ---------- */
+  .page-intro {
+    padding: 34px 60px 22px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+
+  .page-intro h1 {
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--green-dark);
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .page-intro p {
+    font-size: 15.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .search-bar {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 13px 18px;
+    max-width: 560px;
+  }
+
+  .search-bar svg { flex-shrink: 0; opacity: 0.5; }
+
+  .search-bar input {
+    border: none;
+    outline: none;
+    flex: 1;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+
+  /* ---------- Main layout ---------- */
+  .map-page {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 0 60px 20px;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 26px;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 26px;
+    align-self: start;
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+  }
+
+  .sidebar h3 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .filter-group { margin-bottom: 28px; }
+  .filter-group:last-child { margin-bottom: 0; }
+
+  /* ---------- Service accordion ---------- */
+  .accordion-item {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .accordion-item:last-child { margin-bottom: 0; }
+
+  .accordion-header {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    background: var(--white);
+    border: none;
+    padding: 12px 14px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: left;
+  }
+
+  .accordion-header:hover { background: var(--green-light); }
+
+  .accordion-header .header-label {
+    flex: 1;
+  }
+
+  .accordion-header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+  }
+
+  .accordion-header .chevron {
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .accordion-item.open .accordion-header .chevron {
+    transform: rotate(180deg);
+  }
+
+  .accordion-header .svc-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--green-light);
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+    padding: 0 14px;
+  }
+
+  .accordion-item.open .accordion-body {
+    max-height: 600px;
+    padding: 4px 14px 12px;
+  }
+
+  .accordion-body .filter-option {
+    padding: 6px 0;
+    font-size: 13.5px;
+    font-weight: 500;
+  }
+
+  .filter-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    cursor: pointer;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--text-dark);
+    user-select: none;
+  }
+
+  .filter-option input {
+    width: 17px;
+    height: 17px;
+    min-width: 17px;
+    min-height: 17px;
+    flex-shrink: 0;
+    accent-color: var(--green);
+    cursor: pointer;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .filter-option .count {
+    margin-left: auto;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  select.loc-select {
+    width: 100%;
+    padding: 11px 12px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    background: var(--white);
+    cursor: pointer;
+  }
+
+  .clear-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid var(--green);
+    background: var(--white);
+    color: var(--green);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+
+  .clear-btn:hover { background: var(--green-light); }
+
+  /* ---------- Map area ---------- */
+  .map-area {
+    position: relative;
+    border: 5px solid var(--green);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 0 50px rgba(28, 154, 91, 0.18);
+    min-height: 560px;
+  }
+
+  #map { width: 100%; height: 100%; min-height: 560px; }
+
+  .my-location-btn {
+    position: absolute;
+    bottom: 22px;
+    right: 22px;
+    background: var(--white);
+    border: none;
+    border-radius: 50px;
+    padding: 13px 20px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    color: var(--green-dark);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+    cursor: pointer;
+    z-index: 5;
+  }
+
+  .my-location-btn:hover { background: var(--green-light); }
+
+  .legend {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    background: rgba(255,255,255,0.96);
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    z-index: 5;
+  }
+
+  .legend h4 {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 3px 0;
+  }
+
+  /* ---------- Results ---------- */
+  .results {
+    max-width: 1500px;
+    margin: 8px auto 0;
+    padding: 0 60px 120px;
+  }
+
+  .results-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .results-header h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-dark);
+  }
+
+  .results-header span {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
+  }
+
+  .facility-card {
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    background: var(--white);
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+
+  .facility-card:hover {
+    box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+    border-color: var(--green);
+  }
+
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+    color: var(--white);
+    white-space: nowrap;
+  }
+
+  .facility-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; color: var(--text-dark); }
+
+  .facility-card .address {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+
+  .status {
+    font-size: 12.5px;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .status.open { color: var(--green-dark); }
+  .status.closed { color: #C94545; }
+
+  .card-actions { display: flex; gap: 10px; }
+
+  .card-actions button {
+    flex: 1;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary { background: var(--green); color: var(--white); }
+  .btn-primary:hover { background: var(--green-dark); }
+  .btn-secondary { background: var(--green-light); color: var(--green-dark); }
+  .btn-secondary:hover { background: #d7f0e2; }
+
+  .no-results {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--text-muted);
+    font-weight: 500;
+    display: none;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    header { padding: 18px 24px; flex-wrap: wrap; gap: 14px; }
+    nav { gap: 22px; flex-wrap: wrap; }
+    .page-intro, .map-page, .results { padding-left: 24px; padding-right: 24px; }
+    .map-page { grid-template-columns: 1fr; }
+    .sidebar { max-height: none; }
+    .map-area { min-height: 420px; }
+    #map { min-height: 420px; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="cliniscopelogo.png" alt="CliniScope logo" class="logo-img">
+      <span>CliniScope</span>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="map.html" class="active">Map</a>
+      <a href="#">About</a>
+      <a href="#" class="admin-btn">Log in as Admin</a>
+    </nav>
+  </header>
+
+  <div class="page-intro">
+    <h1>Find Health Facilities</h1>
+    <p>Browse hospitals, health centers, clinics, pharmacies, and dental clinics across Barangay Muzon Proper.</p>
+    <div class="search-bar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Search by facility name...">
+    </div>
+  </div>
+
+  <div class="map-page">
+    <!-- Sidebar filters -->
+    <aside class="sidebar">
+      <div class="filter-group">
+        <h3>Category</h3>
+        <label class="filter-option">
+          <input type="checkbox" class="cat-filter" value="Dental Clinic" checked>
+          <span class="dot" style="background: var(--c-dental)"></span>
+          Dental Clinic <span class="count" data-count="Dental Clinic"></span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox" class="cat-filter" value="Medical Clinic" checked>
+          <span class="dot" style="background: var(--c-clinic)"></span>
+          Medical Clinic <span class="count" data-count="Medical Clinic"></span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox" class="cat-filter" value="Hospital" checked>
+          <span class="dot" style="background: var(--c-hospital)"></span>
+          Hospital <span class="count" data-count="Hospital"></span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox" class="cat-filter" value="Barangay Health Center" checked>
+          <span class="dot" style="background: var(--c-health-center)"></span>
+          Barangay Health Center <span class="count" data-count="Barangay Health Center"></span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox" class="cat-filter" value="Pharmacy" checked>
+          <span class="dot" style="background: var(--c-pharmacy)"></span>
+          Pharmacy <span class="count" data-count="Pharmacy"></span>
+        </label>
+      </div>
+
+      <div class="filter-group">
+        <h3>Service</h3>
+        <div id="serviceAccordion"></div>
+      </div>
+
+      <div class="filter-group">
+        <h3>Location</h3>
+        <select class="loc-select" id="locationSelect">
+          <option value="">All Locations</option>
+          <option value="Sarmiento Homes">Sarmiento Homes</option>
+          <option value="Marigold Subdivision">Marigold Subdivision</option>
+          <option value="Kelsey Hills Subdivision">Kelsey Hills Subdivision</option>
+          <option value="Mountain View Subdivision">Mountain View Subdivision</option>
+          <option value="Galahapmai Subdivision">Galahapmai Subdivision</option>
+          <option value="Amaresa 2">Amaresa 2</option>
+          <option value="Melody Heights">Melody Heights</option>
+        </select>
+      </div>
+
+      <button class="clear-btn" id="clearFilters">Clear All Filters</button>
+    </aside>
+
+    <!-- Map -->
+    <div class="map-area">
+      <div class="legend">
+        <h4>Legend</h4>
+        <div class="legend-row"><span class="dot" style="background: var(--c-dental)"></span> Dental Clinic</div>
+        <div class="legend-row"><span class="dot" style="background: var(--c-clinic)"></span> Medical Clinic</div>
+        <div class="legend-row"><span class="dot" style="background: var(--c-hospital)"></span> Hospital</div>
+        <div class="legend-row"><span class="dot" style="background: var(--c-health-center)"></span> Barangay Health Center</div>
+        <div class="legend-row"><span class="dot" style="background: var(--c-pharmacy)"></span> Pharmacy</div>
+      </div>
+      <button class="my-location-btn" id="myLocationBtn">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+        My Location
+      </button>
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <!-- Results list -->
+  <section class="results">
+    <div class="results-header">
+      <h2>Results</h2>
+      <span id="resultsCount"></span>
+    </div>
+    <div class="results-grid" id="resultsGrid"></div>
+    <div class="no-results" id="noResults">No facilities match your filters. Try adjusting your search.</div>
+  </section>
+
+  <script>
+    // ---------- Mock facility data ----------
+    // Sample only — this will later come from the Admin panel / database.
+    const facilities = [
+      { id: 1, name: "Muzon Proper Barangay Health Center", category: "Barangay Health Center", zone: "Sarmiento Homes", address: "Purok 1, Barangay Muzon Proper", lat: 14.8032, lng: 121.0338, services: ["General Health Consultation", "Immunization / Vaccination", "Maternal and Prenatal Care"], open: true },
+    ];
+
+    // Services grouped per facility type — shown as a collapsible accordion in the sidebar.
+    const serviceGroups = {
+      "Dental Clinic": [
+        "Dental Consultation", "Oral Examination", "Teeth Cleaning / Dental Prophylaxis",
+        "Tooth Extraction", "Dental Filling / Restoration", "Root Canal Treatment",
+        "Dental X-ray", "Dentures", "Braces / Orthodontic Treatment", "Oral Surgery",
+        "Gum Treatment", "Fluoride Treatment", "Dental Sealants", "Emergency Dental Care"
+      ],
+      "Medical Clinic": [
+        "General Consultation", "Physical Examination", "Vital Signs Monitoring",
+        "Medical Check-up", "Diagnosis and Treatment", "Prescription / Medication Assistance",
+        "Minor Wound Care", "Wound Dressing", "Injection Services", "Vaccination",
+        "Medical Certificates", "Laboratory Test Requests", "Follow-up Consultation",
+        "Chronic Disease Monitoring", "Health Counseling"
+      ],
+      "Hospital": [
+        "Emergency Services", "Outpatient Consultation", "Inpatient / Admission",
+        "General Medicine", "Pediatrics", "Obstetrics and Gynecology", "Surgery",
+        "Internal Medicine", "Cardiology", "Dermatology", "Ophthalmology", "ENT Services",
+        "Orthopedics", "Neurology", "Psychiatry / Mental Health Services",
+        "Laboratory Services", "Blood Bank", "Diagnostic Imaging", "X-ray", "Ultrasound",
+        "CT Scan", "MRI"
+      ],
+      "Barangay Health Center": [
+        "General Health Consultation", "Maternal and Prenatal Care", "Child Health Services",
+        "Immunization / Vaccination", "Family Planning", "Reproductive Health Services",
+        "Nutrition Counseling", "Blood Pressure Monitoring", "Blood Sugar Monitoring",
+        "Basic First Aid", "Wound Care", "Health Education", "Disease Prevention",
+        "TB Screening / Treatment Programs", "Senior Citizen Health Services"
+      ]
+    };
+
+    const categoryColors = {
+      "Hospital": "#E64545",
+      "Barangay Health Center": "#1C9A5B",
+      "Medical Clinic": "#2E7DD6",
+      "Pharmacy": "#9B59D0",
+      "Dental Clinic": "#F0891E"
+    };
+
+    // ---------- Build the service accordion ----------
+    function renderServiceAccordion() {
+      const container = document.getElementById('serviceAccordion');
+      container.innerHTML = Object.entries(serviceGroups).map(([group, services], idx) => `
+        <div class="accordion-item" data-group="${idx}">
+          <button type="button" class="accordion-header">
+            <span class="dot" style="background:${categoryColors[group] || '#5C6B63'}"></span>
+            <span class="header-label">${group}</span>
+            <span class="header-right">
+              <span class="svc-count">${services.length}</span>
+              <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+          </button>
+          <div class="accordion-body">
+            ${services.map(s => `
+              <label class="filter-option">
+                <input type="checkbox" class="svc-filter" value="${s}">
+                ${s}
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.accordion-header').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.closest('.accordion-item').classList.toggle('open');
+        });
+      });
+
+      container.querySelectorAll('.svc-filter').forEach(cb => cb.addEventListener('change', applyFilters));
+    }
+
+    // Fill in category counts in the sidebar
+    document.querySelectorAll('[data-count]').forEach(el => {
+      const cat = el.getAttribute('data-count');
+      el.textContent = facilities.filter(f => f.category === cat).length;
+    });
+
+    let map;
+    let markers = [];
+    let userMarker;
+
+    function pinIcon(color) {
+      return {
+        path: "M12 0C7.2 0 3.3 3.9 3.3 8.7c0 6.5 8.7 15.3 8.7 15.3s8.7-8.8 8.7-15.3C20.7 3.9 16.8 0 12 0z",
+        fillColor: color,
+        fillOpacity: 1,
+        strokeColor: "#ffffff",
+        strokeWeight: 1.5,
+        scale: 1.4,
+        anchor: new google.maps.Point(12, 24)
+      };
+    }
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 14.8020, lng: 121.0347 },
+        zoom: 14.5,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+      });
+
+      facilities.forEach(f => {
+        const marker = new google.maps.Marker({
+          position: { lat: f.lat, lng: f.lng },
+          map: map,
+          title: f.name,
+          icon: pinIcon(categoryColors[f.category]),
+        });
+
+        const info = new google.maps.InfoWindow({
+          content: `<div style="font-family:Poppins,sans-serif;padding:2px;">
+                      <strong>${f.name}</strong><br>
+                      <span style="color:${categoryColors[f.category]};font-weight:600;">${f.category}</span><br>
+                      <span style="font-size:12.5px;color:#5C6B63;">${f.address}</span>
+                    </div>`
+        });
+
+        marker.addListener("click", () => info.open(map, marker));
+        marker.facilityId = f.id;
+        markers.push(marker);
+      });
+
+      applyFilters();
+    }
+
+    // ---------- Filtering ----------
+    function getActiveCategories() {
+      return Array.from(document.querySelectorAll('.cat-filter:checked')).map(cb => cb.value);
+    }
+    function getActiveServices() {
+      return Array.from(document.querySelectorAll('.svc-filter:checked')).map(cb => cb.value);
+    }
+
+    function applyFilters() {
+      const activeCats = getActiveCategories();
+      const activeServices = getActiveServices();
+      const zone = document.getElementById('locationSelect').value;
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      const filtered = facilities.filter(f => {
+        if (!activeCats.includes(f.category)) return false;
+        if (zone && f.zone !== zone) return false;
+        if (activeServices.length && !activeServices.some(s => f.services.includes(s))) return false;
+        if (search && !f.name.toLowerCase().includes(search)) return false;
+        return true;
+      });
+
+      // toggle markers
+      if (markers.length) {
+        const visibleIds = new Set(filtered.map(f => f.id));
+        markers.forEach(m => m.setMap(visibleIds.has(m.facilityId) ? map : null));
+      }
+
+      renderResults(filtered);
+    }
+
+    function renderResults(list) {
+      const grid = document.getElementById('resultsGrid');
+      const noResults = document.getElementById('noResults');
+      const count = document.getElementById('resultsCount');
+      count.textContent = `${list.length} facilit${list.length === 1 ? 'y' : 'ies'} found`;
+
+      if (!list.length) {
+        grid.innerHTML = '';
+        noResults.style.display = 'block';
+        return;
+      }
+      noResults.style.display = 'none';
+
+      grid.innerHTML = list.map(f => `
+        <div class="facility-card">
+          <div class="card-top">
+            <span class="badge" style="background:${categoryColors[f.category]}">${f.category}</span>
+          </div>
+          <h3>${f.name}</h3>
+          <div class="address">${f.address}</div>
+          <div class="status ${f.open ? 'open' : 'closed'}">${f.open ? '● Open Now' : '● Closed'}</div>
+          <div class="card-actions">
+            <button class="btn-primary" onclick="focusFacility(${f.id})">View on Map</button>
+            <button class="btn-secondary" onclick="getDirections(${f.lat}, ${f.lng})">Get Directions</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function focusFacility(id) {
+      const f = facilities.find(x => x.id === id);
+      if (!f || !map) return;
+      map.panTo({ lat: f.lat, lng: f.lng });
+      map.setZoom(17);
+      const marker = markers.find(m => m.facilityId === id);
+      if (marker) google.maps.event.trigger(marker, 'click');
+      document.querySelector('.map-area').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function getDirections(lat, lng) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+    }
+
+    document.getElementById('myLocationBtn').addEventListener('click', () => {
+      if (!navigator.geolocation) { alert('Geolocation is not supported by your browser.'); return; }
+      navigator.geolocation.getCurrentPosition(pos => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        map.panTo(loc);
+        map.setZoom(16);
+        if (userMarker) userMarker.setMap(null);
+        userMarker = new google.maps.Marker({
+          position: loc,
+          map: map,
+          title: "You are here",
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: "#2E7DD6",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 2,
+          }
+        });
+      }, () => alert('Unable to retrieve your location.'));
+    });
+
+    renderServiceAccordion();
+    document.querySelectorAll('.cat-filter').forEach(cb => cb.addEventListener('change', applyFilters));
+    document.getElementById('locationSelect').addEventListener('change', applyFilters);
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.getElementById('clearFilters').addEventListener('click', () => {
+      document.querySelectorAll('.cat-filter').forEach(cb => cb.checked = true);
+      document.querySelectorAll('.svc-filter').forEach(cb => cb.checked = false);
+      document.getElementById('locationSelect').value = '';
+      document.getElementById('searchInput').value = '';
+      applyFilters();
+    });
+
+    renderResults(facilities);
+  </script>
+
+  <!-- Replace YOUR_GOOGLE_MAPS_API_KEY with your actual API key -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap">
+  </script>
+</body>
+</html>

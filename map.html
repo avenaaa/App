@@ -619,6 +619,15 @@
       "Dental Clinic": "#F0891E"
     };
 
+    // Custom Google Maps style (hides land parcel labels, POI labels/icons, road icons, transit)
+    const mapStyles = [
+      { featureType: "administrative.land_parcel", elementType: "labels", stylers: [{ visibility: "off" }] },
+      { featureType: "poi", elementType: "labels.text", stylers: [{ visibility: "off" }] },
+      { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+      { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+      { featureType: "transit", stylers: [{ visibility: "off" }] }
+    ];
+
     // ---------- Build the service accordion ----------
     function renderServiceAccordion() {
       const container = document.getElementById('serviceAccordion');
@@ -681,6 +690,7 @@
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: false,
+        styles: mapStyles,
       });
 
       facilities.forEach(f => {
@@ -819,9 +829,8 @@
     renderResults(facilities);
   </script>
 
-  <!-- Replace YOUR_GOOGLE_MAPS_API_KEY with your actual API key -->
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBd2y8wT1bdhNHiS0fAVQ4Fe-YNdA0jyBg&callback=initMap">
   </script>
 </body>
 </html>

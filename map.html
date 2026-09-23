@@ -13,6 +13,7 @@
     --green-dark: #14874F;
     --green-light: #E7F6EE;
     --orange: #F0891E;
+    --orange-dark: #D97814;
     --text-dark: #1F2A24;
     --text-muted: #5C6B63;
     --white: #FFFFFF;
@@ -212,8 +213,11 @@
     padding: 0 14px;
   }
 
+  /* Was capped at 600px, which clipped long lists like Hospital (22 services)
+     and Barangay Health Center (15 services). Raised so every item fits;
+     the sidebar itself still scrolls as a whole. */
   .accordion-item.open .accordion-body {
-    max-height: 600px;
+    max-height: 1500px;
     padding: 4px 14px 12px;
   }
 
@@ -411,6 +415,8 @@
   }
 
   .facility-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; color: var(--text-dark); }
+  .card-title-link { color: inherit; text-decoration: none; }
+  .card-title-link:hover { color: var(--green-dark); text-decoration: underline; }
 
   .facility-card .address {
     font-size: 13.5px;
@@ -428,7 +434,7 @@
   .status.open { color: var(--green-dark); }
   .status.closed { color: #C94545; }
 
-  .card-actions { display: flex; gap: 10px; }
+  .card-actions { display: flex; gap: 10px; margin-bottom: 10px; }
 
   .card-actions button {
     flex: 1;
@@ -445,6 +451,24 @@
   .btn-primary:hover { background: var(--green-dark); }
   .btn-secondary { background: var(--green-light); color: var(--green-dark); }
   .btn-secondary:hover { background: #d7f0e2; }
+
+  /* New: full-width button so users don't have to hit the small facility
+     name link to open the facility page. */
+  .btn-view-facility {
+    display: block;
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 11px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+    background: var(--orange);
+    color: var(--white);
+    text-align: center;
+  }
+  .btn-view-facility:hover { background: var(--orange-dark); }
 
   .no-results {
     text-align: center;
@@ -463,6 +487,28 @@
     .sidebar { max-height: none; }
     .map-area { min-height: 420px; }
     #map { min-height: 420px; }
+
+    /* Shrink the legend so it doesn't cover so much of the map on mobile */
+    .legend {
+      top: 10px;
+      left: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
+    .legend h4 {
+      font-size: 9.5px;
+      margin-bottom: 5px;
+      letter-spacing: 0.3px;
+    }
+    .legend-row {
+      font-size: 10.5px;
+      gap: 6px;
+      padding: 2px 0;
+    }
+    .legend .dot {
+      width: 8px;
+      height: 8px;
+    }
   }
 </style>
 </head>
@@ -511,14 +557,14 @@
           Hospital <span class="count" data-count="Hospital"></span>
         </label>
         <label class="filter-option">
-          <input type="checkbox" class="cat-filter" value="Barangay Health Center" checked>
-          <span class="dot" style="background: var(--c-health-center)"></span>
-          Barangay Health Center <span class="count" data-count="Barangay Health Center"></span>
-        </label>
-        <label class="filter-option">
           <input type="checkbox" class="cat-filter" value="Pharmacy" checked>
           <span class="dot" style="background: var(--c-pharmacy)"></span>
           Pharmacy <span class="count" data-count="Pharmacy"></span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox" class="cat-filter" value="Barangay Health Center" checked>
+          <span class="dot" style="background: var(--c-health-center)"></span>
+          Barangay Health Center <span class="count" data-count="Barangay Health Center"></span>
         </label>
       </div>
 
@@ -551,8 +597,8 @@
         <div class="legend-row"><span class="dot" style="background: var(--c-dental)"></span> Dental Clinic</div>
         <div class="legend-row"><span class="dot" style="background: var(--c-clinic)"></span> Medical Clinic</div>
         <div class="legend-row"><span class="dot" style="background: var(--c-hospital)"></span> Hospital</div>
-        <div class="legend-row"><span class="dot" style="background: var(--c-health-center)"></span> Barangay Health Center</div>
         <div class="legend-row"><span class="dot" style="background: var(--c-pharmacy)"></span> Pharmacy</div>
+        <div class="legend-row"><span class="dot" style="background: var(--c-health-center)"></span> Barangay Health Center</div>
       </div>
       <button class="my-location-btn" id="myLocationBtn">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
@@ -572,61 +618,18 @@
     <div class="no-results" id="noResults">No facilities match your filters. Try adjusting your search.</div>
   </section>
 
+  <!-- Shared facility data layer (also used by facility.html) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="data.js"></script>
+
   <script>
-    // ---------- Mock facility data ----------
-    // Sample only — this will later come from the Admin panel / database.
-    const facilities = [
-      { id: 1, name: "Muzon Proper Barangay Health Center", category: "Barangay Health Center", zone: "Sarmiento Homes", address: "Purok 1, Barangay Muzon Proper", lat: 14.8032, lng: 121.0338, services: ["General Health Consultation", "Immunization / Vaccination", "Maternal and Prenatal Care"], open: true },
-    ];
+    // ---------- Facility data (now fetched from Supabase — async) ----------
+    let facilities = [];
 
-    // Services grouped per facility type — shown as a collapsible accordion in the sidebar.
-    const serviceGroups = {
-      "Dental Clinic": [
-        "Dental Consultation", "Oral Examination", "Teeth Cleaning / Dental Prophylaxis",
-        "Tooth Extraction", "Dental Filling / Restoration", "Root Canal Treatment",
-        "Dental X-ray", "Dentures", "Braces / Orthodontic Treatment", "Oral Surgery",
-        "Gum Treatment", "Fluoride Treatment", "Dental Sealants", "Emergency Dental Care"
-      ],
-      "Medical Clinic": [
-        "General Consultation", "Physical Examination", "Vital Signs Monitoring",
-        "Medical Check-up", "Diagnosis and Treatment", "Prescription / Medication Assistance",
-        "Minor Wound Care", "Wound Dressing", "Injection Services", "Vaccination",
-        "Medical Certificates", "Laboratory Test Requests", "Follow-up Consultation",
-        "Chronic Disease Monitoring", "Health Counseling"
-      ],
-      "Hospital": [
-        "Emergency Services", "Outpatient Consultation", "Inpatient / Admission",
-        "General Medicine", "Pediatrics", "Obstetrics and Gynecology", "Surgery",
-        "Internal Medicine", "Cardiology", "Dermatology", "Ophthalmology", "ENT Services",
-        "Orthopedics", "Neurology", "Psychiatry / Mental Health Services",
-        "Laboratory Services", "Blood Bank", "Diagnostic Imaging", "X-ray", "Ultrasound",
-        "CT Scan", "MRI"
-      ],
-      "Barangay Health Center": [
-        "General Health Consultation", "Maternal and Prenatal Care", "Child Health Services",
-        "Immunization / Vaccination", "Family Planning", "Reproductive Health Services",
-        "Nutrition Counseling", "Blood Pressure Monitoring", "Blood Sugar Monitoring",
-        "Basic First Aid", "Wound Care", "Health Education", "Disease Prevention",
-        "TB Screening / Treatment Programs", "Senior Citizen Health Services"
-      ]
-    };
-
-    const categoryColors = {
-      "Hospital": "#E64545",
-      "Barangay Health Center": "#1C9A5B",
-      "Medical Clinic": "#2E7DD6",
-      "Pharmacy": "#9B59D0",
-      "Dental Clinic": "#F0891E"
-    };
-
-    // Custom Google Maps style (hides land parcel labels, POI labels/icons, road icons, transit)
-    const mapStyles = [
-      { featureType: "administrative.land_parcel", elementType: "labels", stylers: [{ visibility: "off" }] },
-      { featureType: "poi", elementType: "labels.text", stylers: [{ visibility: "off" }] },
-      { featureType: "poi.business", stylers: [{ visibility: "off" }] },
-      { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-      { featureType: "transit", stylers: [{ visibility: "off" }] }
-    ];
+    const facilitiesPromise = (async () => {
+      facilities = await getFacilities();
+      return facilities;
+    })();
 
     // ---------- Build the service accordion ----------
     function renderServiceAccordion() {
@@ -661,29 +664,38 @@
       container.querySelectorAll('.svc-filter').forEach(cb => cb.addEventListener('change', applyFilters));
     }
 
-    // Fill in category counts in the sidebar
-    document.querySelectorAll('[data-count]').forEach(el => {
-      const cat = el.getAttribute('data-count');
-      el.textContent = facilities.filter(f => f.category === cat).length;
-    });
-
     let map;
     let markers = [];
     let userMarker;
 
-    function pinIcon(color) {
-      return {
-        path: "M12 0C7.2 0 3.3 3.9 3.3 8.7c0 6.5 8.7 15.3 8.7 15.3s8.7-8.8 8.7-15.3C20.7 3.9 16.8 0 12 0z",
-        fillColor: color,
-        fillOpacity: 1,
-        strokeColor: "#ffffff",
-        strokeWeight: 1.5,
-        scale: 1.4,
-        anchor: new google.maps.Point(12, 24)
-      };
-    }
+    // Everything that depends on `facilities` being loaded runs here,
+    // once the Supabase fetch resolves.
+    facilitiesPromise.then(() => {
+      // Fill in category counts in the sidebar
+      document.querySelectorAll('[data-count]').forEach(el => {
+        const cat = el.getAttribute('data-count');
+        el.textContent = facilities.filter(f => f.category === cat).length;
+      });
 
-    function initMap() {
+      renderServiceAccordion();
+      document.querySelectorAll('.cat-filter').forEach(cb => cb.addEventListener('change', applyFilters));
+      document.getElementById('locationSelect').addEventListener('change', applyFilters);
+      document.getElementById('searchInput').addEventListener('input', applyFilters);
+      document.getElementById('clearFilters').addEventListener('click', () => {
+        document.querySelectorAll('.cat-filter').forEach(cb => cb.checked = true);
+        document.querySelectorAll('.svc-filter').forEach(cb => cb.checked = false);
+        document.getElementById('locationSelect').value = '';
+        document.getElementById('searchInput').value = '';
+        applyFilters();
+      });
+
+      renderResults(facilities);
+    });
+
+    // Google Maps calls this once its script has loaded (see ?callback=initMap below).
+    // It may fire before or after the Supabase fetch resolves, so it awaits
+    // facilitiesPromise before placing any markers.
+    async function initMap() {
       map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 14.8020, lng: 121.0347 },
         zoom: 14.5,
@@ -693,9 +705,11 @@
         styles: mapStyles,
       });
 
+      await facilitiesPromise;
+
       facilities.forEach(f => {
         const marker = new google.maps.Marker({
-          position: { lat: f.lat, lng: f.lng },
+          position: { lat: f.latitude, lng: f.longitude },
           map: map,
           title: f.name,
           icon: pinIcon(categoryColors[f.category]),
@@ -734,7 +748,11 @@
       const filtered = facilities.filter(f => {
         if (!activeCats.includes(f.category)) return false;
         if (zone && f.zone !== zone) return false;
-        if (activeServices.length && !activeServices.some(s => f.services.includes(s))) return false;
+        // Fixed: a facility must offer ALL checked services (AND), not just
+        // one of them (OR). Previously .some() let a facility through as
+        // long as it matched a single checked service, even if it didn't
+        // offer the other services the user also checked.
+        if (activeServices.length && !activeServices.every(s => f.services.includes(s))) return false;
         if (search && !f.name.toLowerCase().includes(search)) return false;
         return true;
       });
@@ -766,13 +784,14 @@
           <div class="card-top">
             <span class="badge" style="background:${categoryColors[f.category]}">${f.category}</span>
           </div>
-          <h3>${f.name}</h3>
+          <h3><a href="facility.html?id=${f.id}" class="card-title-link">${f.name}</a></h3>
           <div class="address">${f.address}</div>
           <div class="status ${f.open ? 'open' : 'closed'}">${f.open ? '● Open Now' : '● Closed'}</div>
           <div class="card-actions">
             <button class="btn-primary" onclick="focusFacility(${f.id})">View on Map</button>
-            <button class="btn-secondary" onclick="getDirections(${f.lat}, ${f.lng})">Get Directions</button>
+            <button class="btn-secondary" onclick="getDirections(${f.latitude}, ${f.longitude})">Get Directions</button>
           </div>
+          <button class="btn-view-facility" onclick="viewFacility(${f.id})">View Facility Details</button>
         </div>
       `).join('');
     }
@@ -780,7 +799,7 @@
     function focusFacility(id) {
       const f = facilities.find(x => x.id === id);
       if (!f || !map) return;
-      map.panTo({ lat: f.lat, lng: f.lng });
+      map.panTo({ lat: f.latitude, lng: f.longitude });
       map.setZoom(17);
       const marker = markers.find(m => m.facilityId === id);
       if (marker) google.maps.event.trigger(marker, 'click');
@@ -789,6 +808,12 @@
 
     function getDirections(lat, lng) {
       window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+    }
+
+    // New: dedicated handler for the big "View Facility Details" button,
+    // so users don't need to tap the small facility-name link.
+    function viewFacility(id) {
+      window.location.href = `facility.html?id=${id}`;
     }
 
     document.getElementById('myLocationBtn').addEventListener('click', () => {
@@ -813,20 +838,6 @@
         });
       }, () => alert('Unable to retrieve your location.'));
     });
-
-    renderServiceAccordion();
-    document.querySelectorAll('.cat-filter').forEach(cb => cb.addEventListener('change', applyFilters));
-    document.getElementById('locationSelect').addEventListener('change', applyFilters);
-    document.getElementById('searchInput').addEventListener('input', applyFilters);
-    document.getElementById('clearFilters').addEventListener('click', () => {
-      document.querySelectorAll('.cat-filter').forEach(cb => cb.checked = true);
-      document.querySelectorAll('.svc-filter').forEach(cb => cb.checked = false);
-      document.getElementById('locationSelect').value = '';
-      document.getElementById('searchInput').value = '';
-      applyFilters();
-    });
-
-    renderResults(facilities);
   </script>
 
   <script async defer

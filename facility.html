@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CliniScope — Facility Details</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1C9A5B;
+    --green-dark: #14874F;
+    --green-light: #E7F6EE;
+    --orange: #F0891E;
+    --text-dark: #1F2A24;
+    --text-muted: #5C6B63;
+    --white: #FFFFFF;
+    --border: #E1E8E3;
+
+    --c-hospital: #E64545;
+    --c-health-center: #1C9A5B;
+    --c-clinic: #2E7DD6;
+    --c-pharmacy: #9B59D0;
+    --c-dental: #F0891E;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--white);
+    color: var(--text-dark);
+  }
+
+  a { text-decoration: none; }
+
+  /* ---------- Header (identical to map.html) ---------- */
+  header {
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 60px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 14px; }
+  .logo-img { width: 40px; height: 40px; object-fit: contain; }
+  .logo span { color: var(--white); font-size: 26px; font-weight: 800; letter-spacing: -0.3px; }
+
+  nav { display: flex; align-items: center; gap: 46px; }
+  nav a { color: var(--white); font-size: 17px; font-weight: 500; opacity: 0.85; position: relative; }
+  nav a.active { opacity: 1; font-weight: 700; }
+  nav a.active::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -8px;
+    height: 3px;
+    background: var(--white);
+    border-radius: 3px;
+  }
+
+  .admin-btn {
+    background: var(--white);
+    color: var(--green);
+    font-weight: 700;
+    font-size: 16px;
+    padding: 13px 26px;
+    border-radius: 30px;
+    white-space: nowrap;
+  }
+
+  /* ---------- Page wrapper ---------- */
+  .page {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 26px 60px 100px;
+  }
+
+  /* ---------- Breadcrumb ---------- */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 22px;
+  }
+
+  .breadcrumb a { color: var(--text-muted); }
+  .breadcrumb a:hover { color: var(--green-dark); }
+  .breadcrumb .sep { opacity: 0.5; }
+  .breadcrumb .current { color: var(--green-dark); font-weight: 700; }
+
+  /* ---------- Main layout ---------- */
+  .facility-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 26px;
+    align-items: start;
+  }
+
+  .main-col { display: flex; flex-direction: column; gap: 26px; }
+
+  .card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+  }
+
+  /* ---------- Facility header card ---------- */
+  .facility-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .facility-title h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--green-dark);
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+  }
+
+  .badge-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    color: var(--white);
+    white-space: nowrap;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+  }
+  .status-badge.open { background: var(--green-light); color: var(--green-dark); }
+  .status-badge.closed { background: #FBE7E7; color: #C94545; }
+
+
+  .facility-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 18px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+
+  .facility-meta .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .facility-meta svg { color: var(--green); flex-shrink: 0; }
+  .facility-meta .muted { color: var(--text-muted); }
+
+  /* ---------- Photo gallery ---------- */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .gallery-thumb {
+    aspect-ratio: 1 / 1;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--green-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--green);
+    overflow: hidden;
+  }
+
+  .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ---------- Services ---------- */
+  .services-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .service-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 9px 16px;
+    border-radius: 20px;
+  }
+
+  .service-tag svg { flex-shrink: 0; }
+
+  /* ---------- Mini map ---------- */
+  .mini-map-frame {
+    border: 5px solid var(--green);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 0 50px rgba(28, 154, 91, 0.18);
+    height: 320px;
+  }
+
+  #miniMap { width: 100%; height: 100%; }
+
+  /* ---------- Action buttons ---------- */
+  .action-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .action-row button {
+    flex: 1;
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    padding: 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary { background: var(--green); color: var(--white); }
+  .btn-primary:hover { background: var(--green-dark); }
+  .btn-secondary { background: var(--green-light); color: var(--green-dark); }
+  .btn-secondary:hover { background: #d7f0e2; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 26px; }
+
+  .sidebar h3 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    padding: 8px 0;
+  }
+
+  .info-row svg { color: var(--green); flex-shrink: 0; margin-top: 2px; }
+  .info-row .label { color: var(--text-muted); display: block; font-size: 12.5px; margin-bottom: 2px; }
+
+  .clear-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid var(--green);
+    background: var(--white);
+    color: var(--green);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  .clear-btn:hover { background: var(--green-light); }
+
+  /* ---------- Related facilities ---------- */
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+  }
+
+  .facility-card {
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    background: var(--white);
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+
+  .facility-card:hover {
+    box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+    border-color: var(--green);
+  }
+
+  .facility-card h3 { font-size: 16px; font-weight: 700; margin: 10px 0 6px; color: var(--text-dark); }
+  .facility-card .address { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 18px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    header { padding: 18px 24px; flex-wrap: wrap; gap: 14px; }
+    nav { gap: 22px; flex-wrap: wrap; }
+    .page { padding: 22px 24px 80px; }
+    .facility-layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 480px) {
+    .facility-title h1 { font-size: 24px; }
+    .card { padding: 20px; }
+    .action-row button { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="cliniscopelogo.png" alt="CliniScope logo" class="logo-img">
+      <span>CliniScope</span>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="map.html">Map</a>
+      <a href="#">About</a>
+      <a href="#" class="admin-btn">Log in as Admin</a>
+    </nav>
+  </header>
+
+  <div class="page">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a>
+      <span class="sep">/</span>
+      <a href="map.html">Map</a>
+      <span class="sep">/</span>
+      <span class="current" id="breadcrumbCurrent">Facility</span>
+    </div>
+
+    <div class="facility-layout">
+      <!-- Main column -->
+      <div class="main-col">
+
+        <!-- Facility header card -->
+        <div class="card" id="facilityHeaderCard">
+          <!-- filled by JS -->
+        </div>
+
+        <!-- Photo gallery -->
+        <div class="card">
+          <h3 class="section-title" style="font-size:18px;margin-bottom:14px;">Photos</h3>
+          <div class="gallery-grid" id="galleryGrid">
+            <!-- filled by JS -->
+          </div>
+        </div>
+
+        <!-- Services offered -->
+        <div class="card">
+          <h3 class="section-title" style="font-size:18px;margin-bottom:14px;">Services Offered</h3>
+          <div class="services-tags" id="servicesTags">
+            <!-- filled by JS -->
+          </div>
+        </div>
+
+        <!-- Location mini-map -->
+        <div class="card">
+          <h3 class="section-title" style="font-size:18px;margin-bottom:14px;">Location</h3>
+          <div class="mini-map-frame">
+            <div id="miniMap"></div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="card">
+          <div class="action-row">
+            <button class="btn-primary" id="directionsBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+              Get Directions
+            </button>
+            <button class="btn-secondary" id="callBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              Call
+            </button>
+            <button class="btn-secondary" id="shareBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              Share
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="card">
+          <h3>Operating Hours</h3>
+          <div class="info-row">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span id="hoursText">—</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Contact</h3>
+          <div class="info-row">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span id="contactText">—</span>
+          </div>
+          <div class="info-row">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span id="addressText">—</span>
+          </div>
+        </div>
+
+        <button class="clear-btn" onclick="window.location.href='map.html'">&larr; Back to Map</button>
+      </aside>
+    </div>
+
+    <!-- Related facilities -->
+    <div style="margin-top: 40px;">
+      <h2 class="section-title">Related Facilities</h2>
+      <div class="related-grid" id="relatedGrid">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared facility data layer (also used by map.html) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="data.js"></script>
+
+  <script>
+    // ---------- Resolve which facility to show (now async — Supabase fetch) ----------
+    // Reads ?id= from the URL; falls back to id 1 if missing/invalid/not found.
+    const params = new URLSearchParams(window.location.search);
+    let facility = null;
+
+    const facilityPromise = (async () => {
+      const requestedId = params.get('id');
+      facility = (await getFacilityById(requestedId)) || (await getFacilityById(1));
+      renderFacility();
+      return facility;
+    })();
+
+    function iconSvg(name) {
+      const icons = {
+        pin: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+        phone: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+        check: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',
+        map: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>'
+      };
+      return icons[name] || '';
+    }
+
+    async function renderFacility() {
+      if (!facility) {
+        document.querySelector('.main-col').innerHTML = '<div class="card"><p>Facility not found.</p></div>';
+        return;
+      }
+
+      document.title = `CliniScope — ${facility.name}`;
+      document.getElementById('breadcrumbCurrent').textContent = facility.name;
+
+      // ---- Header card ----
+      document.getElementById('facilityHeaderCard').innerHTML = `
+        <div class="facility-top">
+          <div class="facility-title">
+            <h1>${facility.name}</h1>
+            <div class="badge-row">
+              <span class="badge" style="background:${categoryColors[facility.category] || '#5C6B63'}">${facility.category}</span>
+              <span class="status-badge ${facility.open ? 'open' : 'closed'}">${facility.open ? '● Open Now' : '● Closed'}</span>
+            </div>
+          </div>
+        </div>
+        <div class="facility-meta">
+          <div class="meta-row">${iconSvg('pin')} <span>${facility.address}<span class="muted"> &middot; ${facility.zone}</span></span></div>
+          <div class="meta-row">${iconSvg('phone')} <span>${facility.contact || 'Not available'}</span></div>
+        </div>
+      `;
+
+      // ---- Photo gallery (placeholders) ----
+      const gallery = document.getElementById('galleryGrid');
+      gallery.innerHTML = Array.from({ length: 4 }).map(() => `
+        <div class="gallery-thumb">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+      `).join('');
+
+      // ---- Services ----
+      const tags = document.getElementById('servicesTags');
+      tags.innerHTML = (facility.services || []).map(s => `
+        <span class="service-tag">${iconSvg('check')} ${s}</span>
+      `).join('') || '<p style="color:var(--text-muted);font-size:14px;">No services listed yet.</p>';
+
+      // ---- Sidebar info ----
+      document.getElementById('hoursText').textContent = facility.hours || 'Not available';
+      document.getElementById('contactText').textContent = facility.contact || 'Not available';
+      document.getElementById('addressText').textContent = `${facility.address}, ${facility.zone}`;
+
+      // ---- Action buttons ----
+      document.getElementById('directionsBtn').addEventListener('click', () => {
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${facility.latitude},${facility.longitude}`, '_blank');
+      });
+      document.getElementById('callBtn').addEventListener('click', () => {
+        if (facility.contact) window.location.href = `tel:${facility.contact.replace(/[^0-9+]/g, '')}`;
+      });
+      document.getElementById('shareBtn').addEventListener('click', () => {
+        const url = `${window.location.origin}${window.location.pathname}?id=${facility.id}`;
+        navigator.clipboard.writeText(url).then(() => {
+          const btn = document.getElementById('shareBtn');
+          const original = btn.innerHTML;
+          btn.innerHTML = `${iconSvg('check')} Link Copied!`;
+          setTimeout(() => { btn.innerHTML = original; }, 1800);
+        });
+      });
+
+      // ---- Related facilities (other facilities, excluding this one) ----
+      const allFacilities = await getFacilities();
+      const related = allFacilities.filter(f => f.id !== facility.id).slice(0, 3);
+      const relatedGrid = document.getElementById('relatedGrid');
+      if (!related.length) {
+        relatedGrid.innerHTML = '<p style="color:var(--text-muted);font-size:14px;">No other facilities yet.</p>';
+      } else {
+        relatedGrid.innerHTML = related.map(f => `
+          <a href="facility.html?id=${f.id}" style="color:inherit;">
+            <div class="facility-card">
+              <span class="badge" style="background:${categoryColors[f.category] || '#5C6B63'}">${f.category}</span>
+              <h3>${f.name}</h3>
+              <div class="address">${f.address}</div>
+            </div>
+          </a>
+        `).join('');
+      }
+    }
+
+    async function initMap() {
+      await facilityPromise;
+      if (!facility) return; // renderFacility() already showed "Facility not found"
+
+      const miniMap = new google.maps.Map(document.getElementById("miniMap"), {
+        center: { lat: facility.latitude, lng: facility.longitude },
+        zoom: 16.5,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        zoomControl: true,
+        styles: mapStyles,
+      });
+
+      new google.maps.Marker({
+        position: { lat: facility.latitude, lng: facility.longitude },
+        map: miniMap,
+        title: facility.name,
+        icon: pinIcon(categoryColors[facility.category] || '#5C6B63'),
+      });
+    }
+  </script>
+
+  <!-- Replace with your own Google Maps API key restricted to your domain -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBd2y8wT1bdhNHiS0fAVQ4Fe-YNdA0jyBg&callback=initMap">
+  </script>
+</body>
+</html>

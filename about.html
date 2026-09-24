@@ -216,6 +216,25 @@
     .card { padding: 22px; }
     .steps { grid-template-columns: 1fr; }
   }
+
+  .contact-grid { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr) minmax(0, 1.4fr); }
+  .contact-item { min-width: 0; }
+  .contact-item .value { overflow-wrap: anywhere; }
+  
+  @media (max-width: 980px) {
+    .contact-grid { grid-template-columns: minmax(0, 1fr); }
+    .contact-item .value { font-size: 13px; }
+  
+    .cta-row { flex-wrap: nowrap; gap: 10px; }
+    .cta-row .btn {
+      flex: 1 1 0;
+      justify-content: center;
+      white-space: nowrap;
+      padding: 13px 8px;
+      font-size: 13.5px;
+    }
+  }
+  
 </style>
 </head>
 <body>

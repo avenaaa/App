@@ -13,7 +13,6 @@
     --green-dark: #14874F;
     --green-light: #E7F6EE;
     --orange: #F0891E;
-    --orange-dark: #D97814;
     --text-dark: #1F2A24;
     --text-muted: #5C6B63;
     --white: #FFFFFF;
@@ -37,7 +36,6 @@
 
   a { text-decoration: none; }
 
-  /* ---------- Header (same as landing page) ---------- */
   header {
     background: var(--green);
     display: flex;
@@ -72,7 +70,6 @@
     white-space: nowrap;
   }
 
-  /* ---------- Page intro ---------- */
   .page-intro {
     padding: 34px 60px 22px;
     max-width: 1500px;
@@ -117,7 +114,6 @@
     color: var(--text-dark);
   }
 
-  /* ---------- Main layout ---------- */
   .map-page {
     max-width: 1500px;
     margin: 0 auto;
@@ -127,7 +123,6 @@
     gap: 26px;
   }
 
-  /* ---------- Sidebar ---------- */
   .sidebar {
     background: var(--white);
     border: 2px solid var(--border);
@@ -140,17 +135,28 @@
 
   .sidebar h3 {
     font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.6px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: var(--green-dark);
     margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sidebar h3::before {
+    content: "";
+    width: 4px;
+    height: 14px;
+    background: var(--green);
+    border-radius: 3px;
+    flex-shrink: 0;
   }
 
   .filter-group { margin-bottom: 28px; }
   .filter-group:last-child { margin-bottom: 0; }
 
-  /* ---------- Service accordion ---------- */
   .accordion-item {
     border: 2px solid var(--border);
     border-radius: 12px;
@@ -213,11 +219,7 @@
     padding: 0 14px;
   }
 
-  /* Was capped at 600px, which clipped long lists like Hospital (22 services)
-     and Barangay Health Center (15 services). Raised so every item fits;
-     the sidebar itself still scrolls as a whole. */
   .accordion-item.open .accordion-body {
-    max-height: 1500px;
     padding: 4px 14px 12px;
   }
 
@@ -292,7 +294,22 @@
 
   .clear-btn:hover { background: var(--green-light); }
 
-  /* ---------- Map area ---------- */
+  .emergency-btn {
+    background: #F0891E;
+    color: #FFFFFF !important;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 13px 24px;
+    border-radius: 30px;
+    white-space: nowrap;
+    opacity: 1 !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.35);
+  }
+  .emergency-btn:hover { background: #D9760F; }
+
   .map-area {
     position: relative;
     border: 5px solid var(--green);
@@ -355,7 +372,6 @@
     padding: 3px 0;
   }
 
-  /* ---------- Results ---------- */
   .results {
     max-width: 1500px;
     margin: 8px auto 0;
@@ -434,7 +450,7 @@
   .status.open { color: var(--green-dark); }
   .status.closed { color: #C94545; }
 
-  .card-actions { display: flex; gap: 10px; margin-bottom: 10px; }
+  .card-actions { display: flex; gap: 10px; }
 
   .card-actions button {
     flex: 1;
@@ -452,23 +468,20 @@
   .btn-secondary { background: var(--green-light); color: var(--green-dark); }
   .btn-secondary:hover { background: #d7f0e2; }
 
-  /* New: full-width button so users don't have to hit the small facility
-     name link to open the facility page. */
-  .btn-view-facility {
-    display: block;
+  .btn-view-details {
     width: 100%;
+    margin-top: 10px;
     font-family: 'Poppins', sans-serif;
     font-weight: 700;
     font-size: 13.5px;
     padding: 11px;
     border-radius: 10px;
     cursor: pointer;
-    border: none;
-    background: var(--orange);
-    color: var(--white);
-    text-align: center;
+    border: 2px solid var(--green);
+    background: var(--white);
+    color: var(--green-dark);
   }
-  .btn-view-facility:hover { background: var(--orange-dark); }
+  .btn-view-details:hover { background: var(--green-light); }
 
   .no-results {
     text-align: center;
@@ -480,35 +493,37 @@
 
   /* ---------- Responsive ---------- */
   @media (max-width: 980px) {
-    header { padding: 18px 24px; flex-wrap: wrap; gap: 14px; }
-    nav { gap: 22px; flex-wrap: wrap; }
+    header { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
+    nav { gap: 12px 20px; flex-wrap: wrap; row-gap: 10px; }
+    .admin-btn { padding: 9px 20px; font-size: 14px; }
     .page-intro, .map-page, .results { padding-left: 24px; padding-right: 24px; }
     .map-page { grid-template-columns: 1fr; }
     .sidebar { max-height: none; }
     .map-area { min-height: 420px; }
     #map { min-height: 420px; }
 
-    /* Shrink the legend so it doesn't cover so much of the map on mobile */
+    .emergency-btn {
+      padding: 9px 18px; font-size: 14px; 
+    }
+
     .legend {
       top: 10px;
       left: 10px;
       padding: 8px 10px;
       border-radius: 10px;
+      max-width: 132px;
     }
-    .legend h4 {
-      font-size: 9.5px;
-      margin-bottom: 5px;
-      letter-spacing: 0.3px;
-    }
-    .legend-row {
-      font-size: 10.5px;
-      gap: 6px;
-      padding: 2px 0;
-    }
-    .legend .dot {
-      width: 8px;
-      height: 8px;
-    }
+    .legend h4 { font-size: 9.5px; margin-bottom: 5px; }
+    .legend-row { font-size: 10.5px; gap: 6px; padding: 2px 0; }
+    .legend-row .dot { width: 8px; height: 8px; }
+    .my-location-btn { padding: 10px 14px; font-size: 12.5px; bottom: 14px; right: 14px; }
+  }
+
+  @media (max-width: 480px) {
+    header { padding: 14px 18px; }
+    .logo span { font-size: 20px; }
+    nav { width: 100%; justify-content: space-between; gap: 10px 16px; }
+    .admin-btn { padding: 8px 16px; font-size: 13px; }
   }
 </style>
 </head>
@@ -522,7 +537,11 @@
     <nav>
       <a href="index.html">Home</a>
       <a href="map.html" class="active">Map</a>
-      <a href="#">About</a>
+      <a href="about.html">About</a>
+      <a href="emergency.html" class="emergency-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Emergency
+      </a>
       <a href="#" class="admin-btn">Log in as Admin</a>
     </nav>
   </header>
@@ -532,12 +551,11 @@
     <p>Browse hospitals, health centers, clinics, pharmacies, and dental clinics across Barangay Muzon Proper.</p>
     <div class="search-bar">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Search by facility name...">
+      <input type="text" id="searchInput" placeholder="Search by name, category, service, or location...">
     </div>
   </div>
 
   <div class="map-page">
-    <!-- Sidebar filters -->
     <aside class="sidebar">
       <div class="filter-group">
         <h3>Category</h3>
@@ -590,7 +608,6 @@
       <button class="clear-btn" id="clearFilters">Clear All Filters</button>
     </aside>
 
-    <!-- Map -->
     <div class="map-area">
       <div class="legend">
         <h4>Legend</h4>
@@ -608,7 +625,6 @@
     </div>
   </div>
 
-  <!-- Results list -->
   <section class="results">
     <div class="results-header">
       <h2>Results</h2>
@@ -618,12 +634,10 @@
     <div class="no-results" id="noResults">No facilities match your filters. Try adjusting your search.</div>
   </section>
 
-  <!-- Shared facility data layer (also used by facility.html) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="data.js"></script>
 
   <script>
-    // ---------- Facility data (now fetched from Supabase — async) ----------
     let facilities = [];
 
     const facilitiesPromise = (async () => {
@@ -631,7 +645,6 @@
       return facilities;
     })();
 
-    // ---------- Build the service accordion ----------
     function renderServiceAccordion() {
       const container = document.getElementById('serviceAccordion');
       container.innerHTML = Object.entries(serviceGroups).map(([group, services], idx) => `
@@ -657,7 +670,13 @@
 
       container.querySelectorAll('.accordion-header').forEach(btn => {
         btn.addEventListener('click', () => {
-          btn.closest('.accordion-item').classList.toggle('open');
+          const item = btn.closest('.accordion-item');
+          const body = item.querySelector('.accordion-body');
+          const isOpen = item.classList.toggle('open');
+          // Set max-height dynamically to the content's real height, so long
+          // lists (Hospital, Barangay Health Center) aren't cut off, and short
+          // lists don't leave extra empty space.
+          body.style.maxHeight = isOpen ? body.scrollHeight + 40 + 'px' : '0px';
         });
       });
 
@@ -668,8 +687,6 @@
     let markers = [];
     let userMarker;
 
-    // Everything that depends on `facilities` being loaded runs here,
-    // once the Supabase fetch resolves.
     facilitiesPromise.then(() => {
       // Fill in category counts in the sidebar
       document.querySelectorAll('[data-count]').forEach(el => {
@@ -692,9 +709,6 @@
       renderResults(facilities);
     });
 
-    // Google Maps calls this once its script has loaded (see ?callback=initMap below).
-    // It may fire before or after the Supabase fetch resolves, so it awaits
-    // facilitiesPromise before placing any markers.
     async function initMap() {
       map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 14.8020, lng: 121.0347 },
@@ -731,7 +745,6 @@
       applyFilters();
     }
 
-    // ---------- Filtering ----------
     function getActiveCategories() {
       return Array.from(document.querySelectorAll('.cat-filter:checked')).map(cb => cb.value);
     }
@@ -748,12 +761,13 @@
       const filtered = facilities.filter(f => {
         if (!activeCats.includes(f.category)) return false;
         if (zone && f.zone !== zone) return false;
-        // Fixed: a facility must offer ALL checked services (AND), not just
-        // one of them (OR). Previously .some() let a facility through as
-        // long as it matched a single checked service, even if it didn't
-        // offer the other services the user also checked.
-        if (activeServices.length && !activeServices.every(s => f.services.includes(s))) return false;
-        if (search && !f.name.toLowerCase().includes(search)) return false;
+        if (activeServices.length && !activeServices.some(s => (f.services || []).includes(s))) return false;
+        if (search) {
+          const searchableText = [
+            f.name, f.category, f.zone, f.address, ...(f.services || [])
+          ].join(' ').toLowerCase();
+          if (!searchableText.includes(search)) return false;
+        }
         return true;
       });
 
@@ -786,12 +800,12 @@
           </div>
           <h3><a href="facility.html?id=${f.id}" class="card-title-link">${f.name}</a></h3>
           <div class="address">${f.address}</div>
-          <div class="status ${f.open ? 'open' : 'closed'}">${f.open ? '● Open Now' : '● Closed'}</div>
+          <div class="status ${getFacilityStatus(f).isOpen ? 'open' : 'closed'}">● ${getFacilityStatus(f).label}</div>
           <div class="card-actions">
             <button class="btn-primary" onclick="focusFacility(${f.id})">View on Map</button>
             <button class="btn-secondary" onclick="getDirections(${f.latitude}, ${f.longitude})">Get Directions</button>
           </div>
-          <button class="btn-view-facility" onclick="viewFacility(${f.id})">View Facility Details</button>
+          <button class="btn-view-details" onclick="window.location.href='facility.html?id=${f.id}'">View Facility Details</button>
         </div>
       `).join('');
     }
@@ -808,12 +822,6 @@
 
     function getDirections(lat, lng) {
       window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
-    }
-
-    // New: dedicated handler for the big "View Facility Details" button,
-    // so users don't need to tap the small facility-name link.
-    function viewFacility(id) {
-      window.location.href = `facility.html?id=${id}`;
     }
 
     document.getElementById('myLocationBtn').addEventListener('click', () => {

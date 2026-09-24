@@ -148,3 +148,105 @@ const mapStyles = [
   { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
   { featureType: "transit", stylers: [{ visibility: "off" }] }
 ];
+
+// =========================================================================
+// Open/Closed status — computed live from operating_hours (per-day JSON) /
+// is_24_hours / temporarily_closed, instead of a manual "open" toggle.
+// The admin can still force a facility closed (holiday, renovation, etc.)
+// via temporarily_closed.
+//
+// operating_hours shape (jsonb column):
+// {
+//   "Monday":    { "opens_at": "08:00", "closes_at": "17:00" },
+//   ...
+//   "Saturday":  { "opens_at": "08:00", "closes_at": "12:00" },
+//   "Sunday":    null   // null / missing = closed that day
+// }
+// =========================================================================
+
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+// True if the facility has at least one day with valid hours.
+function hasHoursSet(facility) {
+  const oh = facility.operating_hours;
+  if (!oh) return false;
+  return Object.values(oh).some(d => d && d.opens_at && d.closes_at);
+}
+
+// Returns { isOpen: boolean, label: string } for right now.
+function getFacilityStatus(facility) {
+  if (facility.temporarily_closed) {
+    return { isOpen: false, label: "Temporarily Closed" };
+  }
+  if (facility.is_24_hours) {
+    return { isOpen: true, label: "Open 24 Hours" };
+  }
+  if (!hasHoursSet(facility)) {
+    return { isOpen: false, label: "Hours Not Set" };
+  }
+
+  const now = new Date();
+  const todayName = DAY_NAMES[now.getDay()];
+  const todayHours = facility.operating_hours[todayName];
+
+  if (!todayHours || !todayHours.opens_at || !todayHours.closes_at) {
+    return { isOpen: false, label: "Closed Today" };
+  }
+
+  const [openH, openM] = todayHours.opens_at.split(':').map(Number);
+  const [closeH, closeM] = todayHours.closes_at.split(':').map(Number);
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const openMinutes = openH * 60 + openM;
+  const closeMinutes = closeH * 60 + closeM;
+
+  const isOpen = nowMinutes >= openMinutes && nowMinutes < closeMinutes;
+  return { isOpen, label: isOpen ? "Open Now" : "Closed" };
+}
+
+// Formats a "HH:MM" (or "HH:MM:SS") time string into "8:00 AM" style.
+function formatTime(t) {
+  const [h, m] = t.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+}
+
+// Builds the "Day - Time" breakdown for display. Consecutive days with the
+// exact same hours are grouped into one row (e.g. Monday–Friday); days with
+// different hours (e.g. Saturday) get their own row. Returns:
+// [ { label: "Monday–Friday", time: "8:00 AM – 5:00 PM" },
+//   { label: "Saturday",      time: "8:00 AM – 12:00 PM" },
+//   { label: "Sunday",        time: "Closed" } ]
+function getHoursBreakdown(facility) {
+  if (facility.is_24_hours) {
+    return [{ label: "Every day", time: "Open 24 Hours" }];
+  }
+  if (!hasHoursSet(facility)) {
+    return [{ label: "Hours", time: "Not set" }];
+  }
+
+  const oh = facility.operating_hours;
+  const rows = DAY_ORDER.map(day => {
+    const entry = oh[day];
+    const time = (entry && entry.opens_at && entry.closes_at)
+      ? `${formatTime(entry.opens_at)} – ${formatTime(entry.closes_at)}`
+      : "Closed";
+    return { day, time };
+  });
+
+  const grouped = [];
+  rows.forEach(row => {
+    const last = grouped[grouped.length - 1];
+    if (last && last.time === row.time) {
+      last.days.push(row.day);
+    } else {
+      grouped.push({ time: row.time, days: [row.day] });
+    }
+  });
+
+  return grouped.map(g => ({
+    label: g.days.length > 1 ? `${g.days[0]}–${g.days[g.days.length - 1]}` : g.days[0],
+    time: g.time
+  }));
+}

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CliniScope — Emergency Contacts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1C9A5B;
+    --green-dark: #14874F;
+    --green-light: #E7F6EE;
+    --red: #F0891E;
+    --red-dark: #D9760F;
+    --red-light: #FEF1E2;
+    --text-dark: #1F2A24;
+    --text-muted: #5C6B63;
+    --white: #FFFFFF;
+    --border: #E1E8E3;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--white);
+    color: var(--text-dark);
+  }
+
+  a { text-decoration: none; }
+
+  header {
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 60px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 14px; }
+  .logo-img { width: 40px; height: 40px; object-fit: contain; }
+  .logo span { color: var(--white); font-size: 26px; font-weight: 800; letter-spacing: -0.3px; }
+
+  nav { display: flex; align-items: center; gap: 46px; }
+  nav a { color: var(--white); font-size: 17px; font-weight: 500; opacity: 0.85; position: relative; }
+  nav a.active { opacity: 1; font-weight: 700; }
+
+  .emergency-btn {
+    background: var(--red);
+    color: var(--white) !important;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 13px 24px;
+    border-radius: 30px;
+    white-space: nowrap;
+    opacity: 1 !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.35);
+  }
+  .emergency-btn:hover { background: var(--red-dark); }
+
+  .admin-btn {
+    background: var(--white);
+    color: var(--green) !important;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 13px 26px;
+    border-radius: 30px;
+    white-space: nowrap;
+    opacity: 1 !important;
+  }
+
+  .page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 44px 60px 100px;
+  }
+
+  .page-title { text-align: center; margin-bottom: 34px; }
+  .page-title h1 {
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--red);
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .page-title p {
+    font-size: 15.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .contacts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+
+  .contact-card.featured {
+    grid-column: 1 / -1;
+    max-width: 480px;
+    width: 100%;
+    justify-self: center;
+  }
+
+  .contact-card {
+    border: 2px solid var(--border);
+    border-radius: 22px;
+    padding: 28px 24px;
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+
+  .contact-card:hover {
+    box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+    border-color: var(--red);
+  }
+
+  .contact-card.featured { border-color: var(--red); background: var(--red-light); }
+
+  .contact-logo {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 16px;
+    color: var(--red);
+  }
+  .contact-card.featured .contact-logo { width: 112px; height: 112px; }
+
+  .contact-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .contact-logo .fallback-icon { display: none; }
+  .contact-logo.no-image img { display: none; }
+  .contact-logo.no-image .fallback-icon { display: block; }
+
+  .contact-name {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .contact-number {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-dark);
+    letter-spacing: -0.3px;
+    margin-bottom: 18px;
+  }
+  .contact-card.featured .contact-number { font-size: 30px; }
+
+  .call-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 260px;
+    background: var(--red);
+    color: var(--white);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 13px 20px;
+    border-radius: 12px;
+  }
+  .call-btn:hover { background: var(--red-dark); }
+
+  .note {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  @media (max-width: 980px) {
+    header { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
+    nav { gap: 12px 20px; flex-wrap: wrap; row-gap: 10px; }
+    .emergency-btn { padding: 9px 18px; font-size: 14px; }
+    .admin-btn { padding: 9px 20px; font-size: 14px; }
+    .page { padding: 28px 24px 80px; }
+  }
+
+  @media (max-width: 600px) {
+    .contacts-grid { grid-template-columns: 1fr; }
+    .page-title h1 { font-size: 26px; }
+    .contact-number { font-size: 23px; }
+  }
+
+  @media (max-width: 480px) {
+    header { padding: 14px 18px; }
+    .logo span { font-size: 20px; }
+    nav { width: 100%; justify-content: space-between; gap: 10px 16px; }
+    .emergency-btn { padding: 8px 14px; font-size: 13px; }
+    .admin-btn { padding: 8px 16px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="cliniscopelogo.png" alt="CliniScope logo" class="logo-img">
+      <span>CliniScope</span>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="map.html">Map</a>
+      <a href="about.html">About</a>
+      <a href="emergency.html" class="emergency-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Emergency
+      </a>
+      <a href="#" class="admin-btn">Log in as Admin</a>
+    </nav>
+  </header>
+
+  <main class="page">
+
+    <div class="page-title">
+      <h1>Emergency Contacts</h1>
+      <p>Tap a number to call right away. Keep these handy for emergencies in Barangay Muzon Proper.</p>
+    </div>
+
+    <div class="contacts-grid">
+
+      <div class="contact-card featured">
+        <div class="contact-logo">
+          <img src="logo/muzonproperlogo.jpg" alt="Barangay Hotline logo" onerror="this.parentElement.classList.add('no-image')">
+          <svg class="fallback-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="contact-name">Barangay Hotline</div>
+        <div class="contact-number">0915-621-7635</div>
+        <a class="call-btn" href="tel:09156217635">Call Now</a>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-logo">
+          <img src="logo/muzonproperlogo.jpg" alt="Barangay Rescue logo" onerror="this.parentElement.classList.add('no-image')">
+          <svg class="fallback-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="contact-name">Barangay Rescue</div>
+        <div class="contact-number">0956-150-4919</div>
+        <a class="call-btn" href="tel:09561504919">Call Now</a>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-logo">
+          <img src="logo/cdrrmologo.jpg" alt="City Rescue logo" onerror="this.parentElement.classList.add('no-image')">
+          <svg class="fallback-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="contact-name">City Rescue</div>
+        <div class="contact-number">0932-600-0119</div>
+        <a class="call-btn" href="tel:09326000119">Call Now</a>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-logo">
+          <img src="logo/pnplogo.png" alt="PNP logo" onerror="this.parentElement.classList.add('no-image')">
+          <svg class="fallback-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="contact-name">PNP</div>
+        <div class="contact-number">0916-432-0401</div>
+        <a class="call-btn" href="tel:09164320401">Call Now</a>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-logo">
+          <img src="logo/bfplogo.png" alt="BFP logo" onerror="this.parentElement.classList.add('no-image')">
+          <svg class="fallback-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="contact-name">BFP</div>
+        <div class="contact-number">0932-373-2444</div>
+        <a class="call-btn" href="tel:09323732444">Call Now</a>
+      </div>
+
+    </div>
+
+    <p class="note">In a life-threatening emergency, call immediately and stay on the line.</p>
+
+  </main>
+
+</body>
+</html>

@@ -35,7 +35,6 @@
 
   a { text-decoration: none; }
 
-  /* ---------- Header (identical to map.html) ---------- */
   header {
     background: var(--green);
     display: flex;
@@ -43,6 +42,22 @@
     justify-content: space-between;
     padding: 22px 60px;
   }
+
+  .emergency-btn {
+  background: #F0891E;
+  color: #FFFFFF !important;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 13px 24px;
+  border-radius: 30px;
+  white-space: nowrap;
+  opacity: 1 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.35);
+}
+  .emergency-btn:hover { background: #D9760F; }
 
   .logo { display: flex; align-items: center; gap: 14px; }
   .logo-img { width: 40px; height: 40px; object-fit: contain; }
@@ -70,14 +85,12 @@
     white-space: nowrap;
   }
 
-  /* ---------- Page wrapper ---------- */
   .page {
     max-width: 1500px;
     margin: 0 auto;
     padding: 26px 60px 100px;
   }
 
-  /* ---------- Breadcrumb ---------- */
   .breadcrumb {
     display: flex;
     align-items: center;
@@ -94,7 +107,6 @@
   .breadcrumb .sep { opacity: 0.5; }
   .breadcrumb .current { color: var(--green-dark); font-weight: 700; }
 
-  /* ---------- Main layout ---------- */
   .facility-layout {
     display: grid;
     grid-template-columns: 1fr 320px;
@@ -111,7 +123,6 @@
     padding: 28px;
   }
 
-  /* ---------- Facility header card ---------- */
   .facility-top {
     display: flex;
     flex-wrap: wrap;
@@ -175,7 +186,6 @@
   .facility-meta svg { color: var(--green); flex-shrink: 0; }
   .facility-meta .muted { color: var(--text-muted); }
 
-  /* ---------- Photo gallery ---------- */
   .gallery-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -196,7 +206,6 @@
 
   .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  /* ---------- Services ---------- */
   .services-tags { display: flex; flex-wrap: wrap; gap: 10px; }
 
   .service-tag {
@@ -213,7 +222,6 @@
 
   .service-tag svg { flex-shrink: 0; }
 
-  /* ---------- Mini map ---------- */
   .mini-map-frame {
     border: 5px solid var(--green);
     border-radius: 24px;
@@ -224,7 +232,6 @@
 
   #miniMap { width: 100%; height: 100%; }
 
-  /* ---------- Action buttons ---------- */
   .action-row {
     display: flex;
     gap: 12px;
@@ -252,7 +259,6 @@
   .btn-secondary { background: var(--green-light); color: var(--green-dark); }
   .btn-secondary:hover { background: #d7f0e2; }
 
-  /* ---------- Sidebar ---------- */
   .sidebar { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 26px; }
 
   .sidebar h3 {
@@ -292,7 +298,20 @@
   }
   .clear-btn:hover { background: var(--green-light); }
 
-  /* ---------- Related facilities ---------- */
+  .hours-list { display: flex; flex-direction: column; }
+  .hours-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hours-row:last-child { border-bottom: none; }
+  .hours-row .day { color: var(--text-muted); font-weight: 500; }
+  .hours-row .time { font-weight: 600; text-align: right; }
+  .hours-row .time.closed { color: #C94545; }
+
   .related-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -322,7 +341,6 @@
     margin-bottom: 18px;
   }
 
-  /* ---------- Responsive ---------- */
   @media (max-width: 980px) {
     header { padding: 18px 24px; flex-wrap: wrap; gap: 14px; }
     nav { gap: 22px; flex-wrap: wrap; }
@@ -330,7 +348,10 @@
     .facility-layout { grid-template-columns: 1fr; }
     .sidebar { position: static; }
     .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    .emergency-btn {padding: 9px 18px; font-size: 14px;}
   }
+
+  
 
   @media (max-width: 480px) {
     .facility-title h1 { font-size: 24px; }
@@ -349,7 +370,11 @@
     <nav>
       <a href="index.html">Home</a>
       <a href="map.html">Map</a>
-      <a href="#">About</a>
+      <a href="about.html">About</a>
+      <a href="emergency.html" class="emergency-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Emergency
+      </a>
       <a href="#" class="admin-btn">Log in as Admin</a>
     </nav>
   </header>
@@ -364,31 +389,23 @@
     </div>
 
     <div class="facility-layout">
-      <!-- Main column -->
       <div class="main-col">
 
-        <!-- Facility header card -->
         <div class="card" id="facilityHeaderCard">
-          <!-- filled by JS -->
         </div>
 
-        <!-- Photo gallery -->
         <div class="card">
           <h3 class="section-title" style="font-size:18px;margin-bottom:14px;">Photos</h3>
           <div class="gallery-grid" id="galleryGrid">
-            <!-- filled by JS -->
           </div>
         </div>
 
-        <!-- Services offered -->
         <div class="card">
           <h3 class="section-title" style="font-size:18px;margin-bottom:14px;">Services Offered</h3>
           <div class="services-tags" id="servicesTags">
-            <!-- filled by JS -->
           </div>
         </div>
 
-        <!-- Location mini-map -->
         <div class="card">
           <h3 class="section-title" style="font-size:18px;margin-bottom:14px;">Location</h3>
           <div class="mini-map-frame">
@@ -396,7 +413,6 @@
           </div>
         </div>
 
-        <!-- Action buttons -->
         <div class="card">
           <div class="action-row">
             <button class="btn-primary" id="directionsBtn">
@@ -415,14 +431,10 @@
         </div>
       </div>
 
-      <!-- Sidebar -->
       <aside class="sidebar">
         <div class="card">
           <h3>Operating Hours</h3>
-          <div class="info-row">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span id="hoursText">—</span>
-          </div>
+          <div class="hours-list" id="hoursList"></div>
         </div>
 
         <div class="card">
@@ -441,22 +453,17 @@
       </aside>
     </div>
 
-    <!-- Related facilities -->
     <div style="margin-top: 40px;">
       <h2 class="section-title">Related Facilities</h2>
       <div class="related-grid" id="relatedGrid">
-        <!-- filled by JS -->
       </div>
     </div>
   </div>
 
-  <!-- Shared facility data layer (also used by map.html) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="data.js"></script>
 
   <script>
-    // ---------- Resolve which facility to show (now async — Supabase fetch) ----------
-    // Reads ?id= from the URL; falls back to id 1 if missing/invalid/not found.
     const params = new URLSearchParams(window.location.search);
     let facility = null;
 
@@ -486,14 +493,13 @@
       document.title = `CliniScope — ${facility.name}`;
       document.getElementById('breadcrumbCurrent').textContent = facility.name;
 
-      // ---- Header card ----
       document.getElementById('facilityHeaderCard').innerHTML = `
         <div class="facility-top">
           <div class="facility-title">
             <h1>${facility.name}</h1>
             <div class="badge-row">
               <span class="badge" style="background:${categoryColors[facility.category] || '#5C6B63'}">${facility.category}</span>
-              <span class="status-badge ${facility.open ? 'open' : 'closed'}">${facility.open ? '● Open Now' : '● Closed'}</span>
+              <span class="status-badge ${getFacilityStatus(facility).isOpen ? 'open' : 'closed'}">● ${getFacilityStatus(facility).label}</span>
             </div>
           </div>
         </div>
@@ -503,7 +509,6 @@
         </div>
       `;
 
-      // ---- Photo gallery (placeholders) ----
       const gallery = document.getElementById('galleryGrid');
       gallery.innerHTML = Array.from({ length: 4 }).map(() => `
         <div class="gallery-thumb">
@@ -511,18 +516,20 @@
         </div>
       `).join('');
 
-      // ---- Services ----
       const tags = document.getElementById('servicesTags');
       tags.innerHTML = (facility.services || []).map(s => `
         <span class="service-tag">${iconSvg('check')} ${s}</span>
       `).join('') || '<p style="color:var(--text-muted);font-size:14px;">No services listed yet.</p>';
 
-      // ---- Sidebar info ----
-      document.getElementById('hoursText').textContent = facility.hours || 'Not available';
+      document.getElementById('hoursList').innerHTML = getHoursBreakdown(facility).map(row => `
+        <div class="hours-row">
+          <span class="day">${row.label}</span>
+          <span class="time ${row.time === 'Closed' ? 'closed' : ''}">${row.time}</span>
+        </div>
+      `).join('');
       document.getElementById('contactText').textContent = facility.contact || 'Not available';
       document.getElementById('addressText').textContent = `${facility.address}, ${facility.zone}`;
 
-      // ---- Action buttons ----
       document.getElementById('directionsBtn').addEventListener('click', () => {
         window.open(`https://www.google.com/maps/dir/?api=1&destination=${facility.latitude},${facility.longitude}`, '_blank');
       });
@@ -539,7 +546,6 @@
         });
       });
 
-      // ---- Related facilities (other facilities, excluding this one) ----
       const allFacilities = await getFacilities();
       const related = allFacilities.filter(f => f.id !== facility.id).slice(0, 3);
       const relatedGrid = document.getElementById('relatedGrid');
@@ -560,7 +566,7 @@
 
     async function initMap() {
       await facilityPromise;
-      if (!facility) return; // renderFacility() already showed "Facility not found"
+      if (!facility) return;
 
       const miniMap = new google.maps.Map(document.getElementById("miniMap"), {
         center: { lat: facility.latitude, lng: facility.longitude },
@@ -581,7 +587,6 @@
     }
   </script>
 
-  <!-- Replace with your own Google Maps API key restricted to your domain -->
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBd2y8wT1bdhNHiS0fAVQ4Fe-YNdA0jyBg&callback=initMap">
   </script>

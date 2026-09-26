@@ -43,22 +43,6 @@
     padding: 22px 60px;
   }
 
-  .emergency-btn {
-  background: #F0891E;
-  color: #FFFFFF !important;
-  font-weight: 700;
-  font-size: 16px;
-  padding: 13px 24px;
-  border-radius: 30px;
-  white-space: nowrap;
-  opacity: 1 !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.35);
-}
-  .emergency-btn:hover { background: #D9760F; }
-
   .logo { display: flex; align-items: center; gap: 14px; }
   .logo-img { width: 40px; height: 40px; object-fit: contain; }
   .logo span { color: var(--white); font-size: 26px; font-weight: 800; letter-spacing: -0.3px; }
@@ -76,14 +60,17 @@
   }
 
   .admin-btn {
-    background: var(--white);
-    color: var(--green);
-    font-weight: 700;
-    font-size: 16px;
-    padding: 13px 26px;
+    background: transparent;
+    color: var(--white) !important;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+    font-size: 15px;
+    padding: 10px 22px;
     border-radius: 30px;
     white-space: nowrap;
+    opacity: 1 !important;
   }
+  .admin-btn:hover { background: rgba(255, 255, 255, 0.15); }
 
   .page {
     max-width: 1500px;
@@ -166,7 +153,6 @@
   .status-badge.open { background: var(--green-light); color: var(--green-dark); }
   .status-badge.closed { background: #FBE7E7; color: #C94545; }
 
-
   .facility-meta {
     display: flex;
     flex-direction: column;
@@ -204,7 +190,13 @@
     overflow: hidden;
   }
 
-  .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gallery-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: inherit;
+  }
 
   .services-tags { display: flex; flex-wrap: wrap; gap: 10px; }
 
@@ -342,23 +334,57 @@
   }
 
   @media (max-width: 980px) {
-    header { padding: 18px 24px; flex-wrap: wrap; gap: 14px; }
-    nav { gap: 22px; flex-wrap: wrap; }
     .page { padding: 22px 24px 80px; }
     .facility-layout { grid-template-columns: 1fr; }
     .sidebar { position: static; }
     .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-    .emergency-btn {padding: 9px 18px; font-size: 14px;}
   }
-
-  
 
   @media (max-width: 480px) {
     .facility-title h1 { font-size: 24px; }
     .card { padding: 20px; }
     .action-row button { min-width: 100%; }
   }
+
+  /* ---------- Consistent mobile header (same on every page) ---------- */
+  @media (max-width: 980px) {
+    header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+      padding: 16px 20px;
+    }
+
+    nav {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px 0;
+      align-items: center;
+    }
+
+    /* Home / Map / About: 1st row, centered, one per column */
+    nav a:nth-child(-n+3) {
+      justify-self: center;
+      text-align: center;
+      font-size: 17px;
+    }
+
+    /* Admin: 2nd row, alone, full width, centered */
+    .admin-btn {
+      grid-column: 1 / -1;
+      justify-self: center;
+      justify-content: center;
+      text-align: center;
+      width: calc(100% - 12px);
+      padding: 11px 10px;
+      font-size: 14px;
+      opacity: 1 !important;
+    }
+  }
+
 </style>
+<link rel="icon" type="image/png" href="cliniscopelogo.png">
 </head>
 <body>
 
@@ -371,11 +397,7 @@
       <a href="index.html">Home</a>
       <a href="map.html">Map</a>
       <a href="about.html">About</a>
-      <a href="emergency.html" class="emergency-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        Emergency
-      </a>
-      <a href="#" class="admin-btn">Log in as Admin</a>
+      <a href="admin.html" class="admin-btn">Log in as Admin</a>
     </nav>
   </header>
 
@@ -484,6 +506,34 @@
       return icons[name] || '';
     }
 
+    // Builds one gallery tile as a real DOM node (not a string), so there is
+    // no HTML-escaping risk — this is what was breaking the rounded corners
+    // before (a malformed onerror="..." attribute corrupted the markup).
+    function buildGalleryThumb(photoUrl, altText) {
+      const thumb = document.createElement('div');
+      thumb.className = 'gallery-thumb';
+
+      if (photoUrl) {
+        const img = document.createElement('img');
+        img.src = photoUrl;
+        img.alt = altText;
+        img.addEventListener('error', () => {
+          thumb.innerHTML = '';
+          thumb.appendChild(buildPlaceholderIcon());
+        });
+        thumb.appendChild(img);
+      } else {
+        thumb.appendChild(buildPlaceholderIcon());
+      }
+      return thumb;
+    }
+
+    function buildPlaceholderIcon() {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+      return wrapper.firstElementChild;
+    }
+
     async function renderFacility() {
       if (!facility) {
         document.querySelector('.main-col').innerHTML = '<div class="card"><p>Facility not found.</p></div>';
@@ -509,12 +559,19 @@
         </div>
       `;
 
+      // ---- Photo gallery ----
+      // Schema currently supports ONE photo per facility (photo_url).
+      // Show the real photo first (if set), fill remaining slots with placeholders.
       const gallery = document.getElementById('galleryGrid');
-      gallery.innerHTML = Array.from({ length: 4 }).map(() => `
-        <div class="gallery-thumb">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        </div>
-      `).join('');
+      gallery.innerHTML = '';
+      const totalSlots = 4;
+      const hasPhoto = !!facility.photo_url;
+      if (hasPhoto) {
+        gallery.appendChild(buildGalleryThumb(facility.photo_url, facility.name));
+      }
+      for (let i = 0; i < totalSlots - (hasPhoto ? 1 : 0); i++) {
+        gallery.appendChild(buildGalleryThumb(null, ''));
+      }
 
       const tags = document.getElementById('servicesTags');
       tags.innerHTML = (facility.services || []).map(s => `
@@ -588,7 +645,7 @@
   </script>
 
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBd2y8wT1bdhNHiS0fAVQ4Fe-YNdA0jyBg&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQM8QYg6tmAvEWU791l5ZZpsWnMX9BTqo&callback=initMap">
   </script>
 </body>
 </html>

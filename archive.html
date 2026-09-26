@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CliniScope — Archived Facilities</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1C9A5B;
+    --green-dark: #14874F;
+    --green-light: #E7F6EE;
+    --orange: #F0891E;
+    --text-dark: #1F2A24;
+    --text-muted: #5C6B63;
+    --white: #FFFFFF;
+    --border: #E1E8E3;
+    --red: #C94545;
+    --red-light: #FBE7E7;
+
+    --c-hospital: #E64545;
+    --c-health-center: #1C9A5B;
+    --c-clinic: #2E7DD6;
+    --c-pharmacy: #9B59D0;
+    --c-dental: #F0891E;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    font-family: 'Poppins', sans-serif;
+    background: #F7FAF8;
+    color: var(--text-dark);
+  }
+
+  a { text-decoration: none; }
+
+  /* ---------- Admin top bar ---------- */
+  header {
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 40px;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-img { width: 36px; height: 36px; object-fit: contain; }
+  .logo span { color: var(--white); font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
+  .logo .tag {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green-dark);
+    background: var(--white);
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: 4px;
+  }
+
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .admin-email { color: var(--white); font-size: 14px; font-weight: 600; opacity: 0.9; }
+
+  .logout-btn {
+    background: transparent;
+    color: var(--white);
+    border: 2px solid rgba(255,255,255,0.7);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 9px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .logout-btn:hover { background: rgba(255,255,255,0.15); }
+
+  /* ---------- Page ---------- */
+  .page {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 40px 40px 100px;
+  }
+
+  .breadcrumb {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+  }
+  .breadcrumb a { color: var(--text-muted); }
+  .breadcrumb a:hover { color: var(--green-dark); }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--white);
+    border: 2px solid var(--border);
+    color: var(--text-dark);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  .back-btn:hover { border-color: var(--green); color: var(--green-dark); background: var(--green-light); }
+
+  .page-title h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--green-dark);
+    letter-spacing: -0.4px;
+    margin-bottom: 6px;
+  }
+  .page-title p { font-size: 15px; color: var(--text-muted); font-weight: 500; margin-bottom: 26px; }
+
+  .info-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 14px 18px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+  .info-banner svg { flex-shrink: 0; margin-top: 1px; }
+
+  /* ---------- Table (desktop) ---------- */
+  .table-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    text-align: left;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: #F5F8F6;
+    padding: 14px 18px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  tbody td {
+    padding: 16px 18px;
+    font-size: 14.5px;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #FAFCFB; }
+
+  .facility-name { font-weight: 700; color: var(--text-dark); }
+  .facility-zone { font-size: 12.5px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+    color: var(--white);
+    white-space: nowrap;
+  }
+
+  .archived-date { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+  .row-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  .pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 9px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    background: var(--white);
+    white-space: nowrap;
+  }
+  .pill-btn.edit { color: var(--text-dark); }
+  .pill-btn.edit:hover { border-color: #2E7DD6; color: #2E7DD6; background: #EAF2FC; }
+  .pill-btn.restore { color: var(--green-dark); }
+  .pill-btn.restore:hover { border-color: var(--green); background: var(--green-light); }
+  .pill-btn.delete-perm { color: var(--red); }
+  .pill-btn.delete-perm:hover { border-color: var(--red); background: var(--red-light); }
+
+  /* ---------- Search / filter toolbar ---------- */
+  .toolbar {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+  }
+  .search-bar {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 11px 16px;
+  }
+  .search-bar svg { flex-shrink: 0; opacity: 0.5; }
+  .search-bar input {
+    border: none;
+    outline: none;
+    flex: 1;
+    min-width: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+
+  /* ---------- Mobile cards ---------- */
+  .mobile-cards { display: none; flex-direction: column; gap: 14px; }
+
+  .facility-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .facility-card .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .facility-card h3 { font-size: 16px; font-weight: 700; margin: 8px 0 2px; }
+  .facility-card .facility-zone { margin-bottom: 4px; }
+
+  .facility-card .card-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .facility-card .card-actions button {
+    flex: 1;
+    min-width: 90px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    background: var(--white);
+  }
+  .facility-card .card-actions .edit { color: var(--text-dark); }
+  .facility-card .card-actions .restore { color: var(--green-dark); }
+  .facility-card .card-actions .delete-perm { color: var(--red); }
+
+  /* ---------- Empty / loading state ---------- */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* ---------- Modals ---------- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 30, 24, 0.45);
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+
+  .modal-box {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 400px;
+    width: 100%;
+  }
+
+  .modal-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .modal-icon.restore-icon { background: var(--green-light); color: var(--green-dark); }
+  .modal-icon.delete-icon { background: var(--red-light); color: var(--red); }
+
+  .modal-box h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+  .modal-box p { font-size: 14.5px; color: var(--text-muted); font-weight: 500; line-height: 1.6; margin-bottom: 24px; }
+  .modal-box p strong { color: var(--text-dark); }
+
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions button {
+    flex: 1;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    padding: 13px;
+    border-radius: 12px;
+    cursor: pointer;
+    border: none;
+  }
+  .modal-cancel { background: var(--green-light); color: var(--green-dark); }
+  .modal-cancel:hover { background: #d7f0e2; }
+  .modal-confirm.restore-confirm { background: var(--green); color: var(--white); }
+  .modal-confirm.restore-confirm:hover { background: var(--green-dark); }
+  .modal-confirm.delete-confirm { background: var(--red); color: var(--white); }
+  .modal-confirm.delete-confirm:hover { background: #b23a3a; }
+  .modal-confirm:disabled { opacity: 0.7; cursor: not-allowed; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    header { padding: 16px 20px; }
+    .page { padding: 26px 20px 80px; }
+    .table-card { display: none; }
+    .mobile-cards { display: flex; }
+  }
+
+  @media (max-width: 600px) {
+    .header-right { width: 100%; justify-content: space-between; }
+    .admin-email { font-size: 12.5px; }
+  }
+</style>
+<link rel="icon" type="image/png" href="cliniscopelogo.png">
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="cliniscopelogo.png" alt="CliniScope logo" class="logo-img">
+      <span>CliniScope</span>
+      <span class="tag">ADMIN</span>
+    </div>
+    <div class="header-right">
+      <span class="admin-email" id="adminEmail"></span>
+      <button class="logout-btn" id="logoutBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <div class="breadcrumb">
+      <a href="dashboard.html">Dashboard</a> / <a href="manage.html">Manage Facilities</a> / <span>Archived</span>
+    </div>
+
+    <button class="back-btn" onclick="window.location.href='manage.html'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back
+    </button>
+
+    <div class="page-title">
+      <h1>Archived Facilities</h1>
+      <p>Facilities that have been removed from the public map but not permanently deleted.</p>
+    </div>
+
+    <div class="info-banner">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Archived facilities are hidden from residents on the Map page, but their information is kept. Only admins can see this page. Restore a facility to make it public again, or delete it permanently if it's no longer needed.</span>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-bar">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Search by name, address, or zone...">
+      </div>
+    </div>
+
+    <!-- Desktop table -->
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Facility</th>
+            <th>Category</th>
+            <th>Archived On</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="4" class="empty-state">Loading archived facilities…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile cards -->
+    <div class="mobile-cards" id="mobileCards">
+      <div class="empty-state">Loading archived facilities…</div>
+    </div>
+
+  </main>
+
+  <!-- Restore confirmation modal -->
+  <div class="modal-overlay" id="restoreModal">
+    <div class="modal-box">
+      <div class="modal-icon restore-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      </div>
+      <h3>Restore this facility?</h3>
+      <p><strong id="restoreFacilityName">This facility</strong> will become visible on the public map again.</p>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="cancelRestore">Cancel</button>
+        <button class="modal-confirm restore-confirm" id="confirmRestore">Restore</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Permanent delete confirmation modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+      <div class="modal-icon delete-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </div>
+      <h3>Delete permanently?</h3>
+      <p>This will permanently delete <strong id="deleteFacilityName">this facility</strong> and all its data. This action <strong>cannot be undone</strong>.</p>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="cancelDelete">Cancel</button>
+        <button class="modal-confirm delete-confirm" id="confirmDelete">Delete Permanently</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="data.js"></script>
+
+  <script>
+    let archivedFacilities = [];
+    let pendingRestoreId = null;
+    let pendingDeleteId = null;
+
+    (async () => {
+      const session = await requireAdminAuth();
+      if (!session) return;
+
+      document.getElementById('adminEmail').textContent = session.user.email;
+
+      archivedFacilities = await getArchivedFacilities();
+      renderList(archivedFacilities);
+
+      document.getElementById('searchInput').addEventListener('input', applyFilters);
+    })();
+
+    function applyFilters() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      const filtered = archivedFacilities.filter(f => {
+        if (!search) return true;
+        const text = [f.name, f.address, f.zone].join(' ').toLowerCase();
+        return text.includes(search);
+      });
+
+      renderList(filtered);
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await logoutAdmin();
+      window.location.href = 'admin.html';
+    });
+
+    function formatArchivedDate(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function renderList(list) {
+      const tableBody = document.getElementById('tableBody');
+      const mobileCards = document.getElementById('mobileCards');
+
+      if (!list.length) {
+        const searchActive = document.getElementById('searchInput').value.trim().length > 0;
+        const message = searchActive
+          ? 'No archived facilities match your search.'
+          : 'No archived facilities. Anything you archive from Manage Facilities will show up here.';
+        tableBody.innerHTML = `<tr><td colspan="4" class="empty-state">${message}</td></tr>`;
+        mobileCards.innerHTML = `<div class="empty-state">${message}</div>`;
+        return;
+      }
+
+      tableBody.innerHTML = list.map(f => `
+        <tr>
+          <td>
+            <div class="facility-name">${f.name}</div>
+            <div class="facility-zone">${f.zone || ''}</div>
+          </td>
+          <td><span class="badge" style="background:${categoryColors[f.category] || '#5C6B63'}">${f.category}</span></td>
+          <td><span class="archived-date">${formatArchivedDate(f.archived_at)}</span></td>
+          <td>
+            <div class="row-actions">
+              <a class="pill-btn edit" href="facility-form.html?id=${f.id}&from=archive">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </a>
+              <button class="pill-btn restore" onclick="openRestoreModal(${f.id}, '${f.name.replace(/'/g, "\\'")}')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                Restore
+              </button>
+              <button class="pill-btn delete-perm" onclick="openDeleteModal(${f.id}, '${f.name.replace(/'/g, "\\'")}')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      mobileCards.innerHTML = list.map(f => `
+        <div class="facility-card">
+          <div class="card-top">
+            <span class="badge" style="background:${categoryColors[f.category] || '#5C6B63'}">${f.category}</span>
+            <span class="archived-date">Archived ${formatArchivedDate(f.archived_at)}</span>
+          </div>
+          <h3>${f.name}</h3>
+          <div class="facility-zone">${f.address || ''}${f.zone ? ' · ' + f.zone : ''}</div>
+          <div class="card-actions">
+            <button class="edit" onclick="window.location.href='facility-form.html?id=${f.id}&from=archive'">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>
+            <button class="restore" onclick="openRestoreModal(${f.id}, '${f.name.replace(/'/g, "\\'")}')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              Restore
+            </button>
+            <button class="delete-perm" onclick="openDeleteModal(${f.id}, '${f.name.replace(/'/g, "\\'")}')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+              Delete
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ---------- Restore flow ----------
+    function openRestoreModal(id, name) {
+      pendingRestoreId = id;
+      document.getElementById('restoreFacilityName').textContent = name;
+      document.getElementById('restoreModal').classList.add('show');
+    }
+    function closeRestoreModal() {
+      pendingRestoreId = null;
+      document.getElementById('restoreModal').classList.remove('show');
+    }
+    document.getElementById('cancelRestore').addEventListener('click', closeRestoreModal);
+    document.getElementById('restoreModal').addEventListener('click', (e) => {
+      if (e.target.id === 'restoreModal') closeRestoreModal();
+    });
+
+    document.getElementById('confirmRestore').addEventListener('click', async () => {
+      if (pendingRestoreId === null) return;
+
+      const btn = document.getElementById('confirmRestore');
+      btn.disabled = true;
+      btn.textContent = 'Restoring…';
+
+      const success = await restoreFacility(pendingRestoreId);
+
+      btn.disabled = false;
+      btn.textContent = 'Restore';
+
+      if (!success) {
+        alert('Failed to restore facility. Please try again.');
+        return;
+      }
+
+      archivedFacilities = archivedFacilities.filter(f => f.id !== pendingRestoreId);
+      closeRestoreModal();
+      renderList(archivedFacilities);
+    });
+
+    // ---------- Permanent delete flow ----------
+    function openDeleteModal(id, name) {
+      pendingDeleteId = id;
+      document.getElementById('deleteFacilityName').textContent = name;
+      document.getElementById('deleteModal').classList.add('show');
+    }
+    function closeDeleteModal() {
+      pendingDeleteId = null;
+      document.getElementById('deleteModal').classList.remove('show');
+    }
+    document.getElementById('cancelDelete').addEventListener('click', closeDeleteModal);
+    document.getElementById('deleteModal').addEventListener('click', (e) => {
+      if (e.target.id === 'deleteModal') closeDeleteModal();
+    });
+
+    document.getElementById('confirmDelete').addEventListener('click', async () => {
+      if (pendingDeleteId === null) return;
+
+      const btn = document.getElementById('confirmDelete');
+      btn.disabled = true;
+      btn.textContent = 'Deleting…';
+
+      const success = await deleteFacilityPermanently(pendingDeleteId);
+
+      btn.disabled = false;
+      btn.textContent = 'Delete Permanently';
+
+      if (!success) {
+        alert('Failed to delete facility. Please try again.');
+        return;
+      }
+
+      archivedFacilities = archivedFacilities.filter(f => f.id !== pendingDeleteId);
+      closeDeleteModal();
+      renderList(archivedFacilities);
+    });
+  </script>
+
+</body>
+</html>

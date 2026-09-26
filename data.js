@@ -62,14 +62,79 @@ const serviceGroups = {
   ]
 };
 
+// ---------- Admin Authentication (Supabase Auth) ----------
+// Requires Email/Password auth to be enabled in your Supabase project
+// (Authentication > Providers > Email), and at least one admin user created
+// there (Authentication > Users > Add User). Session is handled entirely by
+// Supabase (stored in localStorage under the hood), so getAdminSession() and
+// requireAdminAuth() will keep working across page reloads automatically.
+
+// Logs in an admin. Returns { success: true, session } on success, or
+// { success: false, message } on failure. Used by login.html.
+async function loginAdmin(email, password) {
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    console.error("Login error:", error);
+    return { success: false, message: error.message };
+  }
+  return { success: true, session: data.session };
+}
+
+// Logs out the current admin. Used by the "Logout" button in admin.html /
+// manage.html.
+async function logoutAdmin() {
+  const { error } = await supabaseClient.auth.signOut();
+
+  if (error) {
+    console.error("Logout error:", error);
+    return false;
+  }
+  return true;
+}
+
+// Returns the current session object, or null if no one is logged in.
+async function getAdminSession() {
+  const { data, error } = await supabaseClient.auth.getSession();
+
+  if (error) {
+    console.error("Error getting session:", error);
+    return null;
+  }
+  return data.session;
+}
+
+// Guards an admin page: call this at the top of manage.html, admin.html,
+// etc. If no one is logged in, redirects to login.html and returns null.
+// If logged in, returns the session.
+//
+// IMPORTANT: this is async (it awaits a Supabase call), so it MUST be
+// awaited — e.g.:
+//   (async () => {
+//     const session = await requireAdminAuth();
+//     if (!session) return; // already redirecting to login.html
+//     // ...rest of the page's admin logic here
+//   })();
+async function requireAdminAuth() {
+  const session = await getAdminSession();
+
+  if (!session) {
+    window.location.href = "login.html";
+    return null;
+  }
+  return session;
+}
+
 // ---------- Data access functions (every page should go through these) ----------
 
-// Returns ALL facilities. Used by map.html (markers + results list) and
-// facility.html (to build the "Related Facilities" section).
+// Returns all ACTIVE (non-archived) facilities. Used by map.html (markers +
+// results list), facility.html ("Related Facilities"), the public site in
+// general, and the Manage Facilities admin list.
 async function getFacilities() {
   const { data, error } = await supabaseClient
     .from("facilities")
     .select("*")
+    .is("archived_at", null)
     .order("id", { ascending: true });
 
   if (error) {
@@ -79,8 +144,30 @@ async function getFacilities() {
   return data;
 }
 
-// Returns ONE facility by id, or null if not found / invalid id.
+// Returns ONE active facility by id, or null if not found, invalid id, or
+// archived. Used by the public facility.html detail page.
 async function getFacilityById(id) {
+  const numId = Number(id);
+  if (!numId) return null;
+
+  const { data, error } = await supabaseClient
+    .from("facilities")
+    .select("*")
+    .eq("id", numId)
+    .is("archived_at", null)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error fetching facility:", error);
+    return null;
+  }
+  return data;
+}
+
+// Returns ONE facility by id regardless of archived status. Used by the
+// admin Add/Edit Facility form, so an archived facility can still be edited
+// if needed.
+async function getFacilityByIdAdmin(id) {
   const numId = Number(id);
   if (!numId) return null;
 
@@ -97,9 +184,24 @@ async function getFacilityById(id) {
   return data;
 }
 
+// Returns all ARCHIVED facilities, most recently archived first. Used by
+// the Admin > Archived Facilities page.
+async function getArchivedFacilities() {
+  const { data, error } = await supabaseClient
+    .from("facilities")
+    .select("*")
+    .not("archived_at", "is", null)
+    .order("archived_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching archived facilities:", error);
+    return [];
+  }
+  return data;
+}
+
 // Creates a new facility (no id) or updates an existing one (has id).
-// Not used yet by map.html / facility.html — this is here ready for
-// the Add/Edit Health Facility admin page.
+// Used by the Admin Add/Edit Facility form.
 async function saveFacility(facility) {
   const { data, error } = await supabaseClient
     .from("facilities")
@@ -113,8 +215,41 @@ async function saveFacility(facility) {
   return data;
 }
 
-// Deletes a facility by id. Ready for the Admin > Manage Facilities page.
-async function deleteFacility(id) {
+// Moves a facility to the archive (soft delete). It disappears from the
+// public site immediately but its data is kept, and it can be restored
+// later from the Admin > Archived Facilities page.
+async function archiveFacility(id) {
+  const { error } = await supabaseClient
+    .from("facilities")
+    .update({ archived_at: new Date().toISOString() })
+    .eq("id", Number(id));
+
+  if (error) {
+    console.error("Error archiving facility:", error);
+    return false;
+  }
+  return true;
+}
+
+// Restores a previously archived facility so it becomes publicly visible
+// again.
+async function restoreFacility(id) {
+  const { error } = await supabaseClient
+    .from("facilities")
+    .update({ archived_at: null })
+    .eq("id", Number(id));
+
+  if (error) {
+    console.error("Error restoring facility:", error);
+    return false;
+  }
+  return true;
+}
+
+// Permanently deletes a facility. Only used from the Admin > Archived
+// Facilities page ("Delete Permanently"), never from Manage Facilities
+// directly — regular deletion there archives instead.
+async function deleteFacilityPermanently(id) {
   const { error } = await supabaseClient
     .from("facilities")
     .delete()

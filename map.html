@@ -61,14 +61,17 @@
   }
 
   .admin-btn {
-    background: var(--white);
-    color: var(--green);
-    font-weight: 700;
-    font-size: 16px;
-    padding: 13px 26px;
+    background: transparent;
+    color: var(--white) !important;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+    font-size: 15px;
+    padding: 10px 22px;
     border-radius: 30px;
     white-space: nowrap;
+    opacity: 1 !important;
   }
+  .admin-btn:hover { background: rgba(255, 255, 255, 0.15); }
 
   .page-intro {
     padding: 34px 60px 22px;
@@ -108,6 +111,7 @@
     border: none;
     outline: none;
     flex: 1;
+    min-width: 0;
     font-family: 'Poppins', sans-serif;
     font-size: 15px;
     font-weight: 500;
@@ -294,22 +298,6 @@
 
   .clear-btn:hover { background: var(--green-light); }
 
-  .emergency-btn {
-    background: #F0891E;
-    color: #FFFFFF !important;
-    font-weight: 700;
-    font-size: 16px;
-    padding: 13px 24px;
-    border-radius: 30px;
-    white-space: nowrap;
-    opacity: 1 !important;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 0 0 3px rgba(255,255,255,0.35);
-  }
-  .emergency-btn:hover { background: #D9760F; }
-
   .map-area {
     position: relative;
     border: 5px solid var(--green);
@@ -493,18 +481,11 @@
 
   /* ---------- Responsive ---------- */
   @media (max-width: 980px) {
-    header { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
-    nav { gap: 12px 20px; flex-wrap: wrap; row-gap: 10px; }
-    .admin-btn { padding: 9px 20px; font-size: 14px; }
     .page-intro, .map-page, .results { padding-left: 24px; padding-right: 24px; }
     .map-page { grid-template-columns: 1fr; }
     .sidebar { max-height: none; }
     .map-area { min-height: 420px; }
     #map { min-height: 420px; }
-
-    .emergency-btn {
-      padding: 9px 18px; font-size: 14px; 
-    }
 
     .legend {
       top: 10px;
@@ -520,12 +501,48 @@
   }
 
   @media (max-width: 480px) {
-    header { padding: 14px 18px; }
     .logo span { font-size: 20px; }
-    nav { width: 100%; justify-content: space-between; gap: 10px 16px; }
-    .admin-btn { padding: 8px 16px; font-size: 13px; }
   }
+
+  /* ---------- Consistent mobile header (same on every page) ---------- */
+  @media (max-width: 980px) {
+    header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+      padding: 16px 20px;
+    }
+
+    nav {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px 0;
+      align-items: center;
+    }
+
+    /* Home / Map / About: 1st row, centered, one per column */
+    nav a:nth-child(-n+3) {
+      justify-self: center;
+      text-align: center;
+      font-size: 17px;
+    }
+
+    /* Admin: 2nd row, alone, full width, centered */
+    .admin-btn {
+      grid-column: 1 / -1;
+      justify-self: center;
+      justify-content: center;
+      text-align: center;
+      width: calc(100% - 12px);
+      padding: 11px 10px;
+      font-size: 14px;
+      opacity: 1 !important;
+    }
+  }
+
 </style>
+<link rel="icon" type="image/png" href="cliniscopelogo.png">
 </head>
 <body>
 
@@ -538,11 +555,7 @@
       <a href="index.html">Home</a>
       <a href="map.html" class="active">Map</a>
       <a href="about.html">About</a>
-      <a href="emergency.html" class="emergency-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        Emergency
-      </a>
-      <a href="#" class="admin-btn">Log in as Admin</a>
+      <a href="admin.html" class="admin-btn">Log in as Admin</a>
     </nav>
   </header>
 
@@ -595,13 +608,6 @@
         <h3>Location</h3>
         <select class="loc-select" id="locationSelect">
           <option value="">All Locations</option>
-          <option value="Sarmiento Homes">Sarmiento Homes</option>
-          <option value="Marigold Subdivision">Marigold Subdivision</option>
-          <option value="Kelsey Hills Subdivision">Kelsey Hills Subdivision</option>
-          <option value="Mountain View Subdivision">Mountain View Subdivision</option>
-          <option value="Galahapmai Subdivision">Galahapmai Subdivision</option>
-          <option value="Amaresa 2">Amaresa 2</option>
-          <option value="Melody Heights">Melody Heights</option>
         </select>
       </div>
 
@@ -673,9 +679,6 @@
           const item = btn.closest('.accordion-item');
           const body = item.querySelector('.accordion-body');
           const isOpen = item.classList.toggle('open');
-          // Set max-height dynamically to the content's real height, so long
-          // lists (Hospital, Barangay Health Center) aren't cut off, and short
-          // lists don't leave extra empty space.
           body.style.maxHeight = isOpen ? body.scrollHeight + 40 + 'px' : '0px';
         });
       });
@@ -687,13 +690,24 @@
     let markers = [];
     let userMarker;
 
+    const DEFAULT_ZONES = ["Sarmiento Homes", "Marigold Subdivision", "Kelsey Hills Subdivision", "Mountain View Subdivision", "Galahapmai Subdivision", "Amaresa 2", "Melody Heights"];
+
+    function populateLocationFilter() {
+      const zones = new Set(DEFAULT_ZONES);
+      facilities.forEach(f => { if (f.zone) zones.add(f.zone); });
+      const sorted = Array.from(zones).sort((a, b) => a.localeCompare(b));
+      const select = document.getElementById('locationSelect');
+      select.innerHTML = '<option value="">All Locations</option>' +
+        sorted.map(z => `<option value="${z}">${z}</option>`).join('');
+    }
+
     facilitiesPromise.then(() => {
-      // Fill in category counts in the sidebar
       document.querySelectorAll('[data-count]').forEach(el => {
         const cat = el.getAttribute('data-count');
         el.textContent = facilities.filter(f => f.category === cat).length;
       });
 
+      populateLocationFilter();
       renderServiceAccordion();
       document.querySelectorAll('.cat-filter').forEach(cb => cb.addEventListener('change', applyFilters));
       document.getElementById('locationSelect').addEventListener('change', applyFilters);
@@ -771,7 +785,6 @@
         return true;
       });
 
-      // toggle markers
       if (markers.length) {
         const visibleIds = new Set(filtered.map(f => f.id));
         markers.forEach(m => m.setMap(visibleIds.has(m.facilityId) ? map : null));
@@ -849,7 +862,7 @@
   </script>
 
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBd2y8wT1bdhNHiS0fAVQ4Fe-YNdA0jyBg&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQM8QYg6tmAvEWU791l5ZZpsWnMX9BTqo&callback=initMap">
   </script>
 </body>
 </html>

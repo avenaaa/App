@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CliniScope — Add Facility</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1C9A5B;
+    --green-dark: #14874F;
+    --green-light: #E7F6EE;
+    --orange: #F0891E;
+    --text-dark: #1F2A24;
+    --text-muted: #5C6B63;
+    --white: #FFFFFF;
+    --border: #E1E8E3;
+    --red: #C94545;
+    --red-light: #FBE7E7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    font-family: 'Poppins', sans-serif;
+    background: #F7FAF8;
+    color: var(--text-dark);
+  }
+
+  a { text-decoration: none; }
+
+  /* ---------- Admin top bar ---------- */
+  header {
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 40px;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-img { width: 36px; height: 36px; object-fit: contain; }
+  .logo span { color: var(--white); font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
+  .logo .tag {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green-dark);
+    background: var(--white);
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: 4px;
+  }
+
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .admin-email { color: var(--white); font-size: 14px; font-weight: 600; opacity: 0.9; }
+
+  .logout-btn {
+    background: transparent;
+    color: var(--white);
+    border: 2px solid rgba(255,255,255,0.7);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 9px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .logout-btn:hover { background: rgba(255,255,255,0.15); }
+
+  /* ---------- Page ---------- */
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 40px 100px;
+  }
+
+  .breadcrumb {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+  }
+  .breadcrumb a { color: var(--text-muted); }
+  .breadcrumb a:hover { color: var(--green-dark); }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--white);
+    border: 2px solid var(--border);
+    color: var(--text-dark);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  .back-btn:hover { border-color: var(--green); color: var(--green-dark); background: var(--green-light); }
+
+  .page-title h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--green-dark);
+    letter-spacing: -0.4px;
+    margin-bottom: 6px;
+  }
+  .page-title p { font-size: 15px; color: var(--text-muted); font-weight: 500; margin-bottom: 30px; }
+
+  /* ---------- Form sections ---------- */
+  .form-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 22px;
+  }
+
+  .section-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+  .section-hint {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .field-grid .span-2 { grid-column: 1 / -1; }
+
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field label {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+  .field label .optional {
+    font-weight: 500;
+    color: var(--text-muted);
+    font-size: 12.5px;
+  }
+
+  .field input[type="text"],
+  .field input[type="email"],
+  .field input[type="number"],
+  .field input[type="url"],
+  .field input[type="tel"],
+  .field select {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--text-dark);
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 11px 14px;
+    outline: none;
+    width: 100%;
+  }
+  .field select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 42px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235C6B63' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px 14px;
+    cursor: pointer;
+  }
+  /* Remove the up/down spinner arrows on number inputs (lat/lng) */
+  .field input[type="number"]::-webkit-inner-spin-button,
+  .field input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .field input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  
+  .field input:focus, .field select:focus { border-color: var(--green); }
+  .field .field-error { font-size: 12.5px; color: var(--red); font-weight: 600; display: none; }
+  .field.has-error input, .field.has-error select { border-color: var(--red); }
+  .field.has-error .field-error { display: block; }
+
+  /* ---------- Map picker ---------- */
+  .map-frame {
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    height: 280px;
+    margin-bottom: 14px;
+  }
+  #locationMap { width: 100%; height: 100%; }
+  .map-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 18px;
+  }
+  .map-hint svg { flex-shrink: 0; color: var(--green); }
+
+  /* ---------- Photo preview ---------- */
+  .photo-preview {
+    width: 96px;
+    height: 96px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--green-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--green);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-row { display: flex; gap: 18px; align-items: flex-start; }
+  .photo-row .field { flex: 1; }
+  .file-input {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-dark);
+    background: var(--white);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    width: 100%;
+    cursor: pointer;
+  }
+  .link-btn {
+    background: none;
+    border: none;
+    color: var(--green-dark);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 0;
+    margin-top: 10px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .link-btn:hover { text-decoration: underline; }
+
+  /* ---------- Services checklist ---------- */
+  .services-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 18px;
+  }
+  .service-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    padding: 9px 12px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .service-check:hover { border-color: var(--green); background: var(--green-light); }
+  .service-check input { accent-color: var(--green); width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+  .services-empty { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+
+  /* ---------- Status toggles ---------- */
+  .toggle-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 12px;
+  }
+  .toggle-row:last-child { margin-bottom: 0; }
+  .toggle-row input { margin-top: 3px; accent-color: var(--green); width: 17px; height: 17px; cursor: pointer; flex-shrink: 0; }
+  .toggle-row .toggle-text { flex: 1; }
+  .toggle-row .toggle-text strong { display: block; font-size: 14.5px; font-weight: 700; margin-bottom: 2px; }
+  .toggle-row .toggle-text span { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+  /* ---------- Operating hours ---------- */
+  .hours-row {
+    display: grid;
+    grid-template-columns: 110px auto 1fr 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .hours-row:last-child { border-bottom: none; }
+  .hours-day { font-size: 14px; font-weight: 700; color: var(--text-dark); }
+  .hours-closed-check {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .hours-closed-check input { accent-color: var(--green); width: 15px; height: 15px; cursor: pointer; }
+  .hours-row input[type="time"] {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    width: 100%;
+  }
+  .hours-row input[type="time"]:disabled { background: #F5F8F6; color: var(--text-muted); }
+  #hoursSection.disabled-24h { opacity: 0.45; pointer-events: none; }
+
+  /* ---------- Actions ---------- */
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    align-items: center;
+  }
+  .save-error {
+    font-size: 13.5px;
+    color: var(--red);
+    font-weight: 600;
+    margin-right: auto;
+    display: none;
+  }
+  .cancel-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--white);
+    border: 2px solid var(--border);
+    color: var(--text-dark);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    padding: 13px 22px;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  .cancel-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+  .save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--orange);
+    color: var(--white);
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    padding: 13px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  .save-btn:hover { background: #D9760F; }
+  .save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  @media (max-width: 700px) {
+    header { padding: 16px 20px; }
+    .page { padding: 30px 20px 80px; }
+    .field-grid, .services-grid { grid-template-columns: 1fr; }
+    .hours-row { grid-template-columns: 90px 1fr; row-gap: 8px; }
+    .hours-row input[type="time"] { grid-column: span 1; }
+    .header-right { width: 100%; justify-content: space-between; }
+  }
+</style>
+<link rel="icon" type="image/png" href="cliniscopelogo.png">
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="cliniscopelogo.png" alt="CliniScope logo" class="logo-img">
+      <span>CliniScope</span>
+      <span class="tag">ADMIN</span>
+    </div>
+    <div class="header-right">
+      <span class="admin-email" id="adminEmail"></span>
+      <button class="logout-btn" id="logoutBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <div class="breadcrumb">
+      <a href="dashboard.html">Dashboard</a> / <a href="manage.html" id="breadcrumbList">Manage Facilities</a> / <span id="breadcrumbCurrent">Add New Facility</span>
+    </div>
+
+    <button class="back-btn" id="backBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back
+    </button>
+
+    <div class="page-title">
+      <h1 id="pageTitle">Add New Facility</h1>
+      <p id="pageSubtitle">Fill in the details below to list a new facility on the map.</p>
+    </div>
+
+    <form id="facilityForm" novalidate>
+
+      <!-- Basic Information -->
+      <div class="form-card">
+        <div class="section-title">Basic Information</div>
+        <div class="section-hint">The facility's name, type, and where it is.</div>
+        <div class="field-grid">
+          <div class="field span-2" id="field-name">
+            <label for="name">Facility Name</label>
+            <input type="text" id="name" placeholder="e.g. Sarmiento Homes Health Center">
+            <span class="field-error">Facility name is required.</span>
+          </div>
+          <div class="field" id="field-category">
+            <label for="category">Category</label>
+            <select id="category">
+              <option value="">Select category</option>
+              <option value="Hospital">Hospital</option>
+              <option value="Barangay Health Center">Barangay Health Center</option>
+              <option value="Medical Clinic">Medical Clinic</option>
+              <option value="Pharmacy">Pharmacy</option>
+              <option value="Dental Clinic">Dental Clinic</option>
+            </select>
+            <span class="field-error">Please select a category.</span>
+          </div>
+          <div class="field" id="field-zone">
+            <label for="zone">Zone / Subdivision</label>
+            <select id="zone">
+              <option value="">Select zone</option>
+            </select>
+            <input type="text" id="zoneCustom" placeholder="Type the new zone / subdivision name" style="display:none; margin-top:8px;">
+            <span class="field-error">Please select or enter a zone.</span>
+          </div>
+          <div class="field span-2" id="field-address">
+            <label for="address">Street Address</label>
+            <input type="text" id="address" placeholder="e.g. Block 4 Lot 12, Sampaguita St.">
+            <span class="field-error">Address is required.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="form-card">
+        <div class="section-title">Map Location</div>
+        <div class="section-hint">Click anywhere on the map to drop the pin at the facility's exact location.</div>
+        <div class="map-frame">
+          <div id="locationMap"></div>
+        </div>
+        <div class="map-hint">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          Coordinates fill in automatically once you place the pin, but you can also type them directly.
+        </div>
+        <div class="field-grid">
+          <div class="field" id="field-latitude">
+            <label for="latitude">Latitude</label>
+            <input type="number" id="latitude" step="any" placeholder="14.8020">
+            <span class="field-error">Enter a valid latitude.</span>
+          </div>
+          <div class="field" id="field-longitude">
+            <label for="longitude">Longitude</label>
+            <input type="number" id="longitude" step="any" placeholder="121.0347">
+            <span class="field-error">Enter a valid longitude.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="form-card">
+        <div class="section-title">Contact Information</div>
+        <div class="section-hint">How residents can reach this facility. All fields here are optional.</div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="contact">Contact Number <span class="optional">(optional)</span></label>
+            <input type="tel" id="contact" placeholder="e.g. 0917 123 4567">
+          </div>
+          <div class="field">
+            <label for="email">Email <span class="optional">(optional)</span></label>
+            <input type="email" id="email" placeholder="e.g. clinic@example.com">
+            <span class="field-error">Enter a valid email address.</span>
+          </div>
+          <div class="field span-2">
+            <label for="facebookPage">Facebook Page <span class="optional">(optional)</span></label>
+            <input type="url" id="facebookPage" placeholder="e.g. https://facebook.com/yourfacility">
+          </div>
+        </div>
+      </div>
+
+      <!-- Photo -->
+      <div class="form-card">
+        <div class="section-title">Photo</div>
+        <div class="section-hint">Upload a photo from your phone's gallery/camera or your computer. Optional.</div>
+        <div class="photo-row">
+          <div class="photo-preview" id="photoPreview">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div class="field">
+            <label for="photoFile">Upload Photo <span class="optional">(optional)</span></label>
+            <input type="file" id="photoFile" class="file-input" accept="image/*">
+            <button type="button" class="link-btn" id="togglePhotoUrlBtn">Have a photo link instead? Paste a URL</button>
+            <div class="field" id="field-photoUrl" style="display:none; margin-top:10px;">
+              <label for="photoUrl">Photo URL</label>
+              <input type="url" id="photoUrl" placeholder="https://...">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services -->
+      <div class="form-card">
+        <div class="section-title">Services Offered</div>
+        <div class="section-hint">Select a category above to see its available services.</div>
+        <div class="services-grid" id="servicesGrid">
+          <div class="services-empty">Select a category first.</div>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="form-card">
+        <div class="section-title">Status</div>
+        <div class="section-hint">Special status flags that override the weekly schedule.</div>
+        <label class="toggle-row">
+          <input type="checkbox" id="is24Hours">
+          <div class="toggle-text">
+            <strong>Open 24 Hours</strong>
+            <span>This facility is always open, every day. Turns off the weekly schedule below.</span>
+          </div>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="temporarilyClosed">
+          <div class="toggle-text">
+            <strong>Temporarily Closed</strong>
+            <span>Use this for holidays, renovations, or any short-term closure. Shows as closed regardless of schedule.</span>
+          </div>
+        </label>
+      </div>
+
+      <!-- Operating Hours -->
+      <div class="form-card">
+        <div class="section-title">Operating Hours</div>
+        <div class="section-hint">Set opening and closing time per day, or mark a day as closed.</div>
+        <div id="hoursSection"></div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-actions">
+          <span class="save-error" id="saveError">Something went wrong. Please try again.</span>
+          <button type="button" class="cancel-btn" id="cancelBtn">Cancel</button>
+          <button type="submit" class="save-btn" id="saveBtn">Save Facility</button>
+        </div>
+      </div>
+
+    </form>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="data.js"></script>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const facilityId = params.get('id');
+    const backTarget = params.get('from') === 'archive' ? 'archive.html' : 'manage.html';
+    const isEditMode = !!facilityId;
+
+    let existingFacility = null;
+    let map = null;
+    let marker = null;
+
+    const DAY_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const DEFAULT_CENTER = { lat: 14.8020, lng: 121.0347 };
+    const DEFAULT_ZONES = ["Sarmiento Homes", "Marigold Subdivision", "Kelsey Hills Subdivision", "Mountain View Subdivision", "Galahapmai Subdivision", "Amaresa 2", "Melody Heights"];
+    const PHOTO_BUCKET = 'facility-photos'; // must exist as a PUBLIC bucket in Supabase Storage
+
+    let selectedPhotoFile = null;
+
+    document.getElementById('backBtn').addEventListener('click', () => window.location.href = backTarget);
+    document.getElementById('cancelBtn').addEventListener('click', () => window.location.href = backTarget);
+    document.getElementById('breadcrumbList').href = backTarget;
+    document.getElementById('breadcrumbList').textContent = backTarget === 'archive.html' ? 'Archived Facilities' : 'Manage Facilities';
+
+    (async () => {
+      const session = await requireAdminAuth();
+      if (!session) return;
+      document.getElementById('adminEmail').textContent = session.user.email;
+
+      buildHoursRows();
+      await populateZoneOptions();
+
+      if (isEditMode) {
+        document.title = 'CliniScope — Edit Facility';
+        document.getElementById('pageTitle').textContent = 'Edit Facility';
+        document.getElementById('pageSubtitle').textContent = 'Update this facility\'s details below.';
+        document.getElementById('breadcrumbCurrent').textContent = 'Edit Facility';
+        document.getElementById('saveBtn').textContent = 'Save Changes';
+
+        existingFacility = await getFacilityByIdAdmin(facilityId);
+        if (!existingFacility) {
+          alert('Facility not found.');
+          window.location.href = backTarget;
+          return;
+        }
+        populateForm(existingFacility);
+      }
+
+      document.getElementById('category').addEventListener('change', () => renderServices());
+      document.getElementById('zone').addEventListener('change', handleZoneChange);
+      document.getElementById('is24Hours').addEventListener('change', toggleHoursSection);
+      document.getElementById('photoFile').addEventListener('change', handlePhotoFileChange);
+      document.getElementById('togglePhotoUrlBtn').addEventListener('click', togglePhotoUrlField);
+      document.getElementById('photoUrl').addEventListener('input', handlePhotoUrlInput);
+      document.getElementById('facilityForm').addEventListener('submit', handleSubmit);
+    })();
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await logoutAdmin();
+      window.location.href = 'admin.html';
+    });
+
+    // ---------- Populate form when editing ----------
+    function populateForm(f) {
+      document.getElementById('name').value = f.name || '';
+      document.getElementById('category').value = f.category || '';
+      document.getElementById('zone').value = f.zone || '';
+      document.getElementById('address').value = f.address || '';
+      document.getElementById('latitude').value = f.latitude ?? '';
+      document.getElementById('longitude').value = f.longitude ?? '';
+      document.getElementById('contact').value = f.contact || '';
+      document.getElementById('email').value = f.email || '';
+      document.getElementById('facebookPage').value = f.facebook_page || '';
+      document.getElementById('is24Hours').checked = !!f.is_24_hours;
+      document.getElementById('temporarilyClosed').checked = !!f.temporarily_closed;
+
+      if (f.photo_url) {
+        document.getElementById('photoUrl').value = f.photo_url;
+        showPhotoPreview(f.photo_url);
+      }
+
+      renderServices(f.services || []);
+      toggleHoursSection();
+
+      if (f.operating_hours) {
+        DAY_LIST.forEach(day => {
+          const entry = f.operating_hours[day];
+          const opensEl = document.getElementById('opens-' + day);
+          const closesEl = document.getElementById('closes-' + day);
+          const closedEl = document.getElementById('closed-' + day);
+          if (entry && entry.opens_at && entry.closes_at) {
+            opensEl.value = entry.opens_at.slice(0, 5);
+            closesEl.value = entry.closes_at.slice(0, 5);
+            closedEl.checked = false;
+          } else {
+            closedEl.checked = true;
+          }
+        });
+        DAY_LIST.forEach(updateDayDisabledState);
+      }
+
+      if (f.latitude && f.longitude) {
+        placeMarker(f.latitude, f.longitude);
+        if (map) map.setCenter({ lat: f.latitude, lng: f.longitude });
+      }
+    }
+
+    // ---------- Zone dropdown (dynamic — builds itself from real data) ----------
+    // Pulls every zone/subdivision ever used (active + archived facilities),
+    // merges it with the starter list below, and adds a "+ Add a new zone"
+    // option so a brand-new subdivision doesn't require editing this file.
+    async function populateZoneOptions() {
+      const zones = new Set(DEFAULT_ZONES);
+      try {
+        const [active, archived] = await Promise.all([getFacilities(), getArchivedFacilities()]);
+        [...active, ...archived].forEach(f => { if (f.zone) zones.add(f.zone); });
+      } catch (err) {
+        console.error('Could not load existing zones, falling back to the starter list:', err);
+      }
+
+      const sorted = Array.from(zones).sort((a, b) => a.localeCompare(b));
+      const zoneSelect = document.getElementById('zone');
+      zoneSelect.innerHTML = '<option value="">Select zone</option>' +
+        sorted.map(z => `<option value="${z}">${z}</option>`).join('') +
+        '<option value="__new__">+ Add a new zone…</option>';
+    }
+
+    function handleZoneChange() {
+      const val = document.getElementById('zone').value;
+      const customInput = document.getElementById('zoneCustom');
+      customInput.style.display = val === '__new__' ? 'block' : 'none';
+      if (val === '__new__') customInput.focus();
+    }
+
+    function getSelectedZone() {
+      const val = document.getElementById('zone').value;
+      return val === '__new__' ? document.getElementById('zoneCustom').value.trim() : val;
+    }
+
+    // ---------- Services checklist (depends on category) ----------
+    function renderServices(checkedList) {
+      checkedList = checkedList || [];
+      const category = document.getElementById('category').value;
+      const grid = document.getElementById('servicesGrid');
+      const list = serviceGroups[category];
+
+      if (!category || !list) {
+        grid.innerHTML = '<div class="services-empty">Select a category first.</div>';
+        return;
+      }
+
+      grid.innerHTML = list.map((service, i) => `
+        <label class="service-check">
+          <input type="checkbox" value="${service}" id="svc-${i}" ${checkedList.includes(service) ? 'checked' : ''}>
+          ${service}
+        </label>
+      `).join('');
+    }
+
+    function getCheckedServices() {
+      return Array.from(document.querySelectorAll('#servicesGrid input[type="checkbox"]:checked')).map(el => el.value);
+    }
+
+    // ---------- Photo: upload from device (primary) or paste a URL (fallback) ----------
+    function showPhotoPreview(srcUrl) {
+      const preview = document.getElementById('photoPreview');
+      const img = document.createElement('img');
+      img.src = srcUrl;
+      img.alt = 'Photo preview';
+      img.onerror = () => { preview.innerHTML = photoPlaceholderSvg(); };
+      preview.innerHTML = '';
+      preview.appendChild(img);
+    }
+
+    function clearPhotoPreview() {
+      document.getElementById('photoPreview').innerHTML = photoPlaceholderSvg();
+    }
+
+    function photoPlaceholderSvg() {
+      return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+    }
+
+    function handlePhotoFileChange(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      selectedPhotoFile = file;
+      // A chosen file always wins over a pasted URL, so clear/hide the URL field.
+      document.getElementById('photoUrl').value = '';
+      document.getElementById('field-photoUrl').style.display = 'none';
+      document.getElementById('togglePhotoUrlBtn').textContent = 'Have a photo link instead? Paste a URL';
+
+      const reader = new FileReader();
+      reader.onload = (ev) => showPhotoPreview(ev.target.result);
+      reader.readAsDataURL(file);
+    }
+
+    function togglePhotoUrlField() {
+      const field = document.getElementById('field-photoUrl');
+      const showing = field.style.display !== 'none';
+      field.style.display = showing ? 'none' : 'flex';
+      document.getElementById('togglePhotoUrlBtn').textContent = showing ? 'Have a photo link instead? Paste a URL' : 'Hide the URL field';
+      if (!showing) document.getElementById('photoUrl').focus();
+    }
+
+    function handlePhotoUrlInput() {
+      // Typing a URL always wins over a previously chosen file.
+      selectedPhotoFile = null;
+      document.getElementById('photoFile').value = '';
+      const url = document.getElementById('photoUrl').value.trim();
+      if (url) showPhotoPreview(url); else clearPhotoPreview();
+    }
+
+    // ---------- Operating hours rows ----------
+    function buildHoursRows() {
+      const section = document.getElementById('hoursSection');
+      section.innerHTML = DAY_LIST.map(day => `
+        <div class="hours-row">
+          <span class="hours-day">${day}</span>
+          <label class="hours-closed-check">
+            <input type="checkbox" id="closed-${day}" onchange="updateDayDisabledState('${day}')">
+            Closed
+          </label>
+          <input type="time" id="opens-${day}" value="08:00">
+          <input type="time" id="closes-${day}" value="17:00">
+        </div>
+      `).join('');
+
+      // Sunday defaults to closed, matching the "typical week" pattern used elsewhere on the site.
+      document.getElementById('closed-Sunday').checked = true;
+      updateDayDisabledState('Sunday');
+    }
+
+    function updateDayDisabledState(day) {
+      const closed = document.getElementById('closed-' + day).checked;
+      document.getElementById('opens-' + day).disabled = closed;
+      document.getElementById('closes-' + day).disabled = closed;
+    }
+
+    function toggleHoursSection() {
+      const is24 = document.getElementById('is24Hours').checked;
+      document.getElementById('hoursSection').classList.toggle('disabled-24h', is24);
+    }
+
+    // ---------- Map picker ----------
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('locationMap'), {
+        center: DEFAULT_CENTER,
+        zoom: 14.5,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        styles: mapStyles,
+      });
+
+      map.addListener('click', (e) => {
+        placeMarker(e.latLng.lat(), e.latLng.lng());
+      });
+
+      const latInput = document.getElementById('latitude');
+      const lngInput = document.getElementById('longitude');
+      [latInput, lngInput].forEach(input => {
+        input.addEventListener('change', () => {
+          const lat = parseFloat(latInput.value);
+          const lng = parseFloat(lngInput.value);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            placeMarker(lat, lng);
+            map.setCenter({ lat, lng });
+          }
+        });
+      });
+    }
+
+    function placeMarker(lat, lng) {
+      document.getElementById('latitude').value = lat.toFixed(6);
+      document.getElementById('longitude').value = lng.toFixed(6);
+
+      if (marker) {
+        marker.setPosition({ lat, lng });
+      } else {
+        marker = new google.maps.Marker({
+          position: { lat, lng },
+          map: map,
+          draggable: true,
+          icon: pinIcon('#1C9A5B'),
+        });
+        marker.addListener('dragend', (e) => placeMarker(e.latLng.lat(), e.latLng.lng()));
+      }
+    }
+
+    // ---------- Validation ----------
+    function clearErrors() {
+      document.querySelectorAll('.field.has-error').forEach(f => f.classList.remove('has-error'));
+    }
+
+    function markError(fieldId) {
+      document.getElementById('field-' + fieldId).classList.add('has-error');
+    }
+
+    function validate(values) {
+      clearErrors();
+      let valid = true;
+
+      if (!values.name) { markError('name'); valid = false; }
+      if (!values.category) { markError('category'); valid = false; }
+      if (!values.zone) { markError('zone'); valid = false; }
+      if (!values.address) { markError('address'); valid = false; }
+      if (isNaN(values.latitude) || values.latitude < -90 || values.latitude > 90) { markError('latitude'); valid = false; }
+      if (isNaN(values.longitude) || values.longitude < -180 || values.longitude > 180) { markError('longitude'); valid = false; }
+      if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) { markError('email'); valid = false; }
+
+      return valid;
+    }
+
+    // ---------- Submit ----------
+    async function handleSubmit(e) {
+      e.preventDefault();
+
+      const values = {
+        name: document.getElementById('name').value.trim(),
+        category: document.getElementById('category').value,
+        zone: getSelectedZone(),
+        address: document.getElementById('address').value.trim(),
+        latitude: parseFloat(document.getElementById('latitude').value),
+        longitude: parseFloat(document.getElementById('longitude').value),
+        contact: document.getElementById('contact').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        facebookPage: document.getElementById('facebookPage').value.trim(),
+      };
+
+      if (!validate(values)) {
+        document.getElementById('saveError').style.display = 'none';
+        return;
+      }
+
+      const is24Hours = document.getElementById('is24Hours').checked;
+      let operatingHours = null;
+      if (!is24Hours) {
+        operatingHours = {};
+        DAY_LIST.forEach(day => {
+          const closed = document.getElementById('closed-' + day).checked;
+          operatingHours[day] = closed ? null : {
+            opens_at: document.getElementById('opens-' + day).value,
+            closes_at: document.getElementById('closes-' + day).value,
+          };
+        });
+      }
+
+      const saveBtn = document.getElementById('saveBtn');
+      const saveError = document.getElementById('saveError');
+      saveBtn.disabled = true;
+      saveError.style.display = 'none';
+
+      // ---- Photo: upload the chosen file to Supabase Storage (if any) ----
+      // Default to whatever photo the facility already had; only change it
+      // if the admin picked a new file, or opened the URL field to set/clear one.
+      let photoUrl = existingFacility ? (existingFacility.photo_url || null) : null;
+
+      if (selectedPhotoFile) {
+        saveBtn.textContent = 'Uploading photo…';
+        const safeExt = (selectedPhotoFile.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+        const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${safeExt}`;
+
+        const { error: uploadError } = await supabaseClient.storage.from(PHOTO_BUCKET).upload(path, selectedPhotoFile);
+        if (uploadError) {
+          console.error('Photo upload failed:', uploadError);
+          saveBtn.disabled = false;
+          saveBtn.textContent = isEditMode ? 'Save Changes' : 'Save Facility';
+          saveError.textContent = 'Failed to upload photo. Please check your connection and try again.';
+          saveError.style.display = 'inline';
+          return;
+        }
+
+        const { data: publicUrlData } = supabaseClient.storage.from(PHOTO_BUCKET).getPublicUrl(path);
+        photoUrl = publicUrlData.publicUrl;
+      } else if (document.getElementById('field-photoUrl').style.display !== 'none') {
+        // The URL field was opened — respect whatever is typed there, even if
+        // that means clearing the photo (empty value -> null).
+        photoUrl = document.getElementById('photoUrl').value.trim() || null;
+      }
+
+      const facilityPayload = {
+        name: values.name,
+        category: values.category,
+        zone: values.zone,
+        address: values.address,
+        latitude: values.latitude,
+        longitude: values.longitude,
+        contact: values.contact || null,
+        email: values.email || null,
+        facebook_page: values.facebookPage || null,
+        photo_url: photoUrl,
+        services: getCheckedServices(),
+        is_24_hours: is24Hours,
+        temporarily_closed: document.getElementById('temporarilyClosed').checked,
+        operating_hours: operatingHours,
+      };
+
+      if (isEditMode) {
+        facilityPayload.id = Number(facilityId);
+        // archived_at is intentionally left out — editing a facility here
+        // never changes its archived status. Restoring/archiving stays a
+        // separate, explicit action on manage.html / archive.html.
+      }
+
+      saveBtn.textContent = 'Saving…';
+      const result = await saveFacility(facilityPayload);
+
+      saveBtn.disabled = false;
+      saveBtn.textContent = isEditMode ? 'Save Changes' : 'Save Facility';
+
+      if (!result) {
+        saveError.textContent = 'Failed to save facility. Please try again.';
+        saveError.style.display = 'inline';
+        return;
+      }
+
+      window.location.href = backTarget;
+    }
+  </script>
+
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQM8QYg6tmAvEWU791l5ZZpsWnMX9BTqo&callback=initMap">
+  </script>
+</body>
+</html>
